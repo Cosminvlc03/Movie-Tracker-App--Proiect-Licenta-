@@ -33,7 +33,7 @@ The necessary keys for the .env files are:
 - Run the given SQL script in PostgreSQL;
 - Run the "npm run dev" command;
 
-5. Extra Info:
+4. Extra Info:
 - This repo is meant to be a continuation of the same app that can be found in the web development portfolio repo.
 - Any of the old commits can be found in that repo.
 - There you can also find the old version, that uses EJS files instead of using React.
