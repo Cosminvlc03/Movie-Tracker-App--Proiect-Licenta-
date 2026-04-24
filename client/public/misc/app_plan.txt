@@ -1,0 +1,12 @@
+An app that lets users see details about movies, bookmark them and leave ratings.
+App end-to-end flow:
+    - user logs in or creates account;
+    - he's presented to the home where he can either search for movies, shows, etc. and also can see which movies he has bookmarked;
+    - when searching for a movie in the search bar and pressing enter, the movie shows up along with other movies that have similar details regarding different aspects(release year, type of movie, etc.);
+    - when choosing the movie, the user can see details about it;
+    - the user is able to add it to the library, which will be shown up on the home page;
+    - the user has the option in the library to check bookmarked movies/shows as either started, finished, or just delete them;
+    - the started option will put a sign on the option that implies that the item is being watched by the user;
+    - the finished option will ask the user to give a rating(1-10), and asks the user if he wants to delete it from the library;
+    - the delete option deletes the movie/show from the library;
+    - upon hovering over the account name, the user can access account details, or to log-out;

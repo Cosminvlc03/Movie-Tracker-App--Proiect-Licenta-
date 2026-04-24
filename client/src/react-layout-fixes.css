@@ -1,0 +1,27 @@
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.bodyLayout {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+  background: #02182B;
+}
+
+.homeBody {
+  min-height: 100vh;
+}
+
+#accountPanel {
+  z-index: 10;
+}
+
+#logoutPopUp {
+  z-index: 20;
+}
