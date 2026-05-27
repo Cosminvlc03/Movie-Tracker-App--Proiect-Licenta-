@@ -113,21 +113,22 @@ export const getMediaDetails = async (req, res) => {
 export const addFavourite = async (req, res) => {
   try {
     const { username } = getSessionCredentials(req);
-    const { mediaId, title, year, type, photo, description, actors } = req.body;
-
+    const { tmdb_id, title, release_year, media_type, poster_path, description, actors } = req.body;
+    if (!tmdb_id) {
+        return res.status(400).json({ message: "ID-ul filmului lipsește!" });
+    }
     await db.query(
       "INSERT INTO media (tmdb_id, title, release_year, media_type, poster_path, description, actors) VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT(tmdb_id) DO UPDATE SET title = EXCLUDED.title RETURNING id",
-      [mediaId, title, year, type, photo, description, Array.isArray(actors) ? actors.join(", ") : actors]
+      [tmdb_id, title, release_year, media_type, poster_path, description, actors]
     );
-
     await db.query(
       "INSERT INTO watchlist (user_id, movie_id) VALUES ((SELECT id FROM users WHERE username = $1), (SELECT id FROM media WHERE tmdb_id = $2)) ON CONFLICT DO NOTHING",
-      [username, mediaId]
+      [username, tmdb_id]
     );
-
     const watchlist = await getWatchlist(username);
     res.status(201).json({ username, watchlist });
   } catch (err) {
+    console.error("EROARE CRITICĂ ÎN ADD FAVOURITE:", err);
     res.status(500).json({ message: "Could not add favourite" });
   }
 };

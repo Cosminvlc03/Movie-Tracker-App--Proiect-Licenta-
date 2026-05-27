@@ -5,9 +5,6 @@ export default function AboutPage({ onHome }) {
   return (
     <div className="bodyLayout">
       <div className="border" id="aboutBorderLeft">
-        <button type="button" id="goBackFromAccountButton" onClick={onHome}>
-          <img src={asset("Icon (2).svg")} alt="home" id="homeIcon" />
-        </button>
       </div>
       <div className="center">
         <div className="mainSectionAbout">
