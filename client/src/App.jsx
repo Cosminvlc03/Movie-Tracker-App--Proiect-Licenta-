@@ -21,8 +21,16 @@ export default function App() {
   const [toast, setToast] = useState({ message: "", type: "" });
   const [searchResults, setSearchResults] = useState([]);
   const [selectedMedia, setSelectedMedia] = useState(null);
-  const [account, setAccount] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("app-theme") || "dark";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("app-theme", theme); // Salvăm alegerea
+  }, [theme]);
 
   useEffect(() => {
     api("/session")
@@ -92,19 +100,11 @@ export default function App() {
       body: JSON.stringify(media),
     });
     setAuth({ username: data.username, watchlist: data.watchlist || [] });
-    //navigate("/home");
   };
 
   const removeFavourite = async (tmdbId) => {
     const data = await api(`/favourite/${tmdbId}`, { method: "DELETE" });
     setAuth({ username: data.username, watchlist: data.watchlist || [] });
-    //navigate("/home");
-  };
-
-  const openAccount = async () => {
-    const data = await api("/account");
-    setAccount(data);
-    navigate("/account");
   };
 
   const logout = async () => {
@@ -113,47 +113,57 @@ export default function App() {
     setToast({ message: "", type: "" });
     navigate("/login");
   };
+
   if (isLoading) {
     return (
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "#02182B" }}>
-        <h1 style={{ color: "#C3C5D7", fontFamily: "Alkatra", fontSize: "2rem" }}>Loading...</h1>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "var(--bg-color)" }}>
+        <h1 style={{ color: "var(--text-main)", fontFamily: "Alkatra", fontSize: "2rem" }}>Loading...</h1>
       </div>
     );
   }
 
   const isAuthenticated = Boolean(auth.username);
 
+  const handleDeleteAccount = async (password) => {
+    await api("/account", {
+      method: "DELETE",
+      body: JSON.stringify({ password }),
+    });
+    setAuth(null);
+    navigate("/login");
+  };
+
   return (
     <div className="app-container">
       {isAuthenticated && (
         <Navbar 
           onSearch={handleSearch} 
-          onAccount={openAccount} 
+          onAccount={() => navigate("/account")} 
           onLogout={logout} 
         />
       )}
 
       <div className="main-content">
         <Routes>
-          {/* Rute Publice */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/login" element={<LoginPage toast={toast} onCloseToast={() => setToast({ message: "", type: "" })} onLogin={handleLogin} onForgotten={() => navigate("/forgotten")} onSignup={() => navigate("/signup")} />} />
           <Route path="/signup" element={<SignupPage onSignup={handleSignup} onBack={() => navigate("/login")} />} />
           <Route path="/forgotten" element={<ForgottenPage onBack={() => navigate("/login")} />} />
           <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+          <Route path="/home" element={isAuthenticated ? <HomePage username={auth.username} watchlist={auth.watchlist} onOpenMedia={openMediaFromWatchlist} /> : <Navigate to="/login" replace />} />
           
-          {/* Rute Private Protejate (Route Guarding) */}
-          <Route path="/home" element={isAuthenticated ? <HomePage username={auth.username} watchlist={auth.watchlist} onSearch={handleSearch} onOpenMedia={openMediaFromWatchlist} onAccount={openAccount} onAbout={() => navigate("/about")} onLogout={logout} /> : <Navigate to="/login" replace />} />
+          <Route path="/search" element={isAuthenticated ? <SearchPage media={searchResults} onOpenMedia={openMediaFromSearch} /> : <Navigate to="/login" replace />} />
           
-          <Route path="/search" element={isAuthenticated ? <SearchPage media={searchResults} onSearch={handleSearch} onOpenMedia={openMediaFromSearch} onHome={goHome} onAccount={openAccount} onAbout={() => navigate("/about")} onLogout={logout} /> : <Navigate to="/login" replace />} />
-          
-          <Route path="/media/:id" element={isAuthenticated ? <MediaPage media={selectedMedia} watchlist={auth.watchlist} onSearch={handleSearch} onHome={goHome} onAccount={openAccount} onAbout={() => navigate("/about")} onLogout={logout} onAddFavourite={addFavourite} onRemoveFavourite={removeFavourite} /> : <Navigate to="/login" replace />} />
+          <Route path="/media/:id" element={isAuthenticated ? <MediaPage media={selectedMedia} watchlist={auth.watchlist} onHome={goHome} onAddFavourite={addFavourite} onRemoveFavourite={removeFavourite} /> : <Navigate to="/login" replace />} />
           
           <Route path="/favourite/:id" element={isAuthenticated ? <HomeMediaPage media={selectedMedia} onHome={goHome} onRemoveFavourite={removeFavourite} /> : <Navigate to="/login" replace />} />
           
-          <Route path="/account" element={isAuthenticated ? <AccountPage account={account} onHome={goHome} /> : <Navigate to="/login" replace />} />
-          
           <Route path="/about" element={isAuthenticated ? <AboutPage onHome={goHome} /> : <Navigate to="/login" replace />} />
+          <Route path="/account" element={
+            isAuthenticated ? 
+            <AccountPage user={auth} onLogout={logout} onDeleteAccount={handleDeleteAccount} theme={theme} onThemeChange={setTheme} /> 
+            : <Navigate to="/login" replace />
+          }/>
           
           <Route path="*" element={<Navigate to="/home" replace />} />
         </Routes>

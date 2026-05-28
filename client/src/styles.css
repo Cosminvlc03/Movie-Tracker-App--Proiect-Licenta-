@@ -2,10 +2,10 @@
    1. VARIABILE GLOBALE & TEMATICĂ
 ========================================= */
 :root {
-  --bg-color: #02182B;          
-  --surface-color: #04243f;     
-  --primary: #1E7170;           
-  --primary-hover: #2BA4A2;     
+  --bg-color: #150e0e;          
+  --surface-color: #241717;     
+  --primary: #8B0000;           
+  --primary-hover: #660000;     
   --text-main: #C3C5D7;         
   --text-muted: #8a8d9e;        
   --danger: #D7263D;            
@@ -60,7 +60,7 @@ html, body, #root {
   color: var(--primary);
   text-align: center;
   margin-bottom: 2rem;
-  text-shadow: 0px 4px 15px rgba(30, 113, 112, 0.4);
+  text-shadow: 0px 4px 15px rgba(139, 0, 0, 0.4);
   animation: drop .6s cubic-bezier(.22, .9, .26, 1) both;
 }
 
@@ -83,12 +83,11 @@ html, body, #root {
   margin: 0;
 }
 
-/* Containerul cardului (fără efect dublu) */
 .mainSection, .mainSectionAccount {
   animation: drop .6s cubic-bezier(.22, .9, .26, 1) both;
   width: 450px;
   border-radius: 40px;
-  background: linear-gradient(249deg, #2BA4A2 -62.37%, #1E7170 50%);
+  background: linear-gradient(249deg, #B91C1C -62%, #4A0000 80%);
   background-size: 400% 400%;
   animation: flowing-gradient 15s ease infinite;
   display: flex;
@@ -105,7 +104,6 @@ html, body, #root {
   gap: 25px;
 }
 
-/* Fix pentru spațiere și alinierea "Forgot Password" */
 .removeSpace {
   display: flex;
   flex-direction: column;
@@ -114,7 +112,6 @@ html, body, #root {
   gap: 8px;
 }
 
-/* Input-uri generice */
 .input {
   width: 300px;
   height: 60px;
@@ -132,10 +129,9 @@ html, body, #root {
 
 .input:focus {
   background: #ffffff;
-  box-shadow: 0 0 12px rgba(43, 164, 162, 0.6);
+  box-shadow: 0 0 12px rgba(139, 0, 0, 0.6);
 }
 
-/* Butoane generice */
 #loginButton, .signUp, .recoverPassword {
   width: 200px;
   height: 50px;
@@ -157,7 +153,6 @@ html, body, #root {
   transform: translateY(-2px);
 }
 
-/* Extra text și link-uri secundare */
 #forgottenPasswordButton {
   color: var(--text-main);
   font-family: var(--font-ui);
@@ -174,7 +169,6 @@ html, body, #root {
   text-decoration: underline;
 }
 
-/* Partea de jos a cardului (despărțită cu linie, fără gradient dublu) */
 .signSection {
   width: 80%; 
   display: flex;
@@ -246,7 +240,7 @@ html, body, #root {
   justify-content: space-between;
   align-items: center;
   padding: 15px 40px;
-  background: rgba(2, 24, 43, 0.8); 
+  background: rgba(21, 14, 14, 0.85);
   backdrop-filter: blur(10px); 
   border-bottom: 1px solid rgba(195, 197, 215, 0.1);
   position: sticky;
@@ -280,7 +274,7 @@ html, body, #root {
 
 .nav-search input:focus {
   background: rgba(195, 197, 215, 0.2);
-  box-shadow: 0 0 10px rgba(30, 113, 112, 0.3);
+  box-shadow: 0 0 12px rgba(139, 0, 0, 0.6);
 }
 
 .nav-account-btn {
@@ -458,8 +452,8 @@ html, body, #root {
 }
 
 .media-badge {
-  background: rgba(30, 113, 112, 0.2);
-  color: var(--primary-hover);
+  background: rgba(139, 0, 0, 0.2);
+  color: #ff9999;
   padding: 6px 16px;
   border-radius: 20px;
   font-size: 14px;
@@ -560,8 +554,8 @@ html, body, #root {
 }
 
 .btn-added {
-  background: rgba(215, 38, 61, 0.15); /* Roșu foarte transparent */
-  color: var(--danger);
+  background: rgba(139, 0, 0, 0.15); 
+  color: #ff9999;
   border: 1px solid var(--danger);
   padding: 16px 32px;
   border-radius: 30px;
@@ -584,6 +578,9 @@ html, body, #root {
   font-family: var(--font-ui);
   font-weight: 500;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
 }
 
@@ -592,4 +589,598 @@ html, body, #root {
   color: white;
   border-color: var(--danger);
   box-shadow: 0 8px 20px rgba(215, 38, 61, 0.3);
+}
+
+/* =========================================
+   14. ACCOUNT PAGE & MODAL
+========================================= */
+.account-card {
+  background: var(--surface-color);
+  padding: 40px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  text-align: center;
+}
+
+.account-info {
+  margin: 30px 0;
+  font-size: 18px;
+  color: var(--text-main);
+  text-align: left;
+  background: rgba(195, 197, 215, 0.05);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.account-actions button {
+  width: 100%;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 11, 16, 0.85); /* Fundal întunecat */
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.modal-content {
+  background: var(--surface-color);
+  padding: 40px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  animation: drop 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.modal-content h3 {
+  color: var(--danger);
+  font-size: 28px;
+  margin-top: 0;
+}
+
+.modal-content p {
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(195, 197, 215, 0.2);
+  background: rgba(10, 11, 16, 0.5);
+  color: white;
+  font-size: 16px;
+  margin-bottom: 25px;
+  outline: none;
+  font-family: var(--font-ui);
+}
+
+.modal-input:focus {
+  border-color: var(--danger);
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.btn-secondary {
+  flex: 1;
+  background: transparent;
+  color: var(--text-main);
+  border: 1px solid rgba(195, 197, 215, 0.3);
+  padding: 14px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(195, 197, 215, 0.1);
+}
+
+.btn-danger {
+  flex: 1;
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+  background: #b51c30;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* =========================================
+   15. REVIEWS SECTION
+========================================= */
+.rating-badge {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid #fbbf24;
+}
+
+.reviews-section-container {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  gap: 30px;
+  animation: drop 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.review-form-card {
+  flex: 1;
+  background: var(--surface-color);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.review-form-card h3, .community-reviews h3 {
+  font-size: 22px;
+  color: white;
+  margin-bottom: 20px;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(195, 197, 215, 0.1);
+  padding-bottom: 10px;
+}
+
+.review-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.rating-select-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: var(--text-main);
+  font-size: 16px;
+}
+
+.rating-select {
+  background: rgba(10, 11, 16, 0.5);
+  color: white;
+  border: 1px solid rgba(195, 197, 215, 0.2);
+  padding: 8px 15px;
+  border-radius: 10px;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  outline: none;
+  cursor: pointer;
+}
+
+.rating-select:focus {
+  border-color: var(--primary);
+}
+
+.review-textarea {
+  width: 100%;
+  background: rgba(10, 11, 16, 0.5);
+  border: 1px solid rgba(195, 197, 215, 0.2);
+  border-radius: 10px;
+  padding: 15px;
+  color: white;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.review-textarea:focus {
+  border-color: var(--primary);
+}
+
+.btn-submit-review {
+  width: 100%;
+  justify-content: center;
+  padding: 12px;
+}
+
+.community-reviews {
+  flex: 1.5;
+  background: var(--surface-color);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.review-card {
+  background: rgba(195, 197, 215, 0.05);
+  border-radius: 15px;
+  padding: 20px;
+  border-left: 4px solid var(--primary);
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.review-author {
+  font-weight: 600;
+  color: white;
+  font-size: 16px;
+}
+
+.review-rating {
+  color: #fbbf24;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.review-date {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.review-text {
+  color: var(--text-main);
+  line-height: 1.5;
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+.no-reviews {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+@media (max-width: 900px) {
+  .reviews-section-container {
+    flex-direction: column;
+  }
+}
+
+/* =========================================
+   16. SORTING & STATS (HomePage)
+========================================= */
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  flex-wrap: wrap; /* Permite caderea pe rândul următor pe ecrane mici */
+  gap: 20px;
+}
+
+.home-header .welcome-text {
+  margin-bottom: 0; /* Suprascriem marginea pe care o aveai înainte pentru a le alinia corect */
+}
+
+.sort-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sort-container label {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.sort-select {
+  background: rgba(10, 11, 16, 0.5);
+  color: white;
+  border: 1px solid rgba(195, 197, 215, 0.2);
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-family: var(--font-ui);
+  font-size: 15px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.sort-select:focus {
+  border-color: var(--primary);
+}
+
+.sort-select option {
+  background: var(--surface-color);
+  color: white;
+}
+
+.movie-stats {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.stat-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  background: rgba(195, 197, 215, 0.05);
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.stat-badge .btn-icon {
+  width: 14px;
+  height: 14px;
+  transform: translateY(-1px);
+}
+
+.stat-badge .star-icon {
+  filter: brightness(0) saturate(100%) invert(74%) sepia(74%) saturate(624%) hue-rotate(352deg) brightness(102%) contrast(101%) !important;
+}
+
+/* =========================================
+   17. LOCAL FILTER BAR (Watchlist)
+========================================= */
+.welcome-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.toggle-filter-btn {
+  background: rgba(195, 197, 215, 0.1);
+  color: var(--text-main);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-filter-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.toggle-filter-btn svg {
+  transition: transform 0.3s ease;
+}
+
+.toggle-filter-btn.open svg {
+  transform: rotate(180deg);
+}
+
+.local-filter-bar {
+  background: var(--surface-color);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: drop 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.local-search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.local-search-wrapper .search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.local-search-input {
+  width: 100%;
+  background: rgba(10, 11, 16, 0.5);
+  border: 1px solid rgba(195, 197, 215, 0.1);
+  padding: 12px 15px 12px 45px;
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-family: var(--font-ui);
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.local-search-input:focus {
+  border-color: var(--primary);
+}
+
+.genres-scroll-container {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 5px;
+}
+
+.genres-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+.genres-scroll-container {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.genre-chip {
+  background: rgba(195, 197, 215, 0.05);
+  border: 1px solid rgba(195, 197, 215, 0.2);
+  color: var(--text-main);
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.genre-chip:hover {
+  background: rgba(195, 197, 215, 0.1);
+}
+
+.genre-chip.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  box-shadow: 0 4px 10px rgba(30, 113, 112, 0.4);
+}
+
+/* =========================================
+   18. THEME TOGGLE & LIGHT MODE OVERRIDES
+========================================= */
+
+:root {
+  --input-bg-surface: rgba(10, 11, 16, 0.5);
+  --input-border-surface: rgba(195, 197, 215, 0.2);
+  --input-text-surface: white;
+  --card-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  --navbar-bg: rgba(21, 14, 14, 0.85);
+  --genre-chip-bg: rgba(195, 197, 215, 0.05);
+  --genre-chip-hover: rgba(195, 197, 215, 0.1);
+  --overlay-bg: rgba(10, 11, 16, 0.85);
+  --icon-filter: brightness(0) invert(1);
+}
+
+[data-theme="light"] {
+  --bg-color: #f0f4f8;
+  --surface-color: #ffffff;
+  --primary: #1E7170;
+  --primary-hover: #155d5c;     
+  --text-main: #2d3748;
+  --text-muted: #718096;        
+  --danger: #e53e3e;            
+  
+  --input-bg-surface: #f8fafc;
+  --input-border-surface: #e2e8f0;
+  --input-text-surface: #2d3748;
+  --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  --navbar-bg: rgba(255, 255, 255, 0.85);
+  --genre-chip-bg: #edf2f7;
+  --genre-chip-hover: #e2e8f0;
+  --overlay-bg: rgba(255, 255, 255, 0.85);
+  --icon-filter: brightness(0) invert(0.2);
+}
+
+.navbar { background: var(--navbar-bg); }
+.nav-search input { background: var(--genre-chip-bg); color: var(--text-main); }
+.media-details-card, .account-card, .review-form-card, .community-reviews, .local-filter-bar { box-shadow: var(--card-shadow); }
+.genre-chip, .back-title-btn { background: var(--genre-chip-bg); }
+.genre-chip:hover, .back-title-btn:hover { background: var(--genre-chip-hover); }
+.modal-overlay, .logout-overlay { background: var(--overlay-bg); }
+
+.modal-input, .local-search-input, .sort-select, .rating-select, .review-textarea {
+  background: var(--input-bg-surface);
+  border-color: var(--input-border-surface);
+  color: var(--input-text-surface);
+}
+
+.review-author, .media-section h3, .review-form-card h3, .community-reviews h3, .sort-select option {
+  color: var(--text-main);
+}
+.media-section h3, .review-form-card h3, .community-reviews h3 {
+  border-bottom-color: var(--input-border-surface);
+}
+
+.back-arrow-icon, .search-icon, .btn-danger-outline .btn-icon, .toggle-filter-btn svg {
+  filter: var(--icon-filter);
+}
+.btn-primary .btn-icon, .btn-danger .btn-icon {
+  filter: brightness(0) invert(1);
+}
+
+/* =========================================
+   19. STILIZARE RADIO BUTOANE (Theme Toggle)
+========================================= */
+.theme-toggle-group {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.theme-radio {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--input-border-surface);
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--text-main);
+  background: var(--genre-chip-bg);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.theme-radio:hover {
+  background: var(--genre-chip-hover);
+}
+
+.theme-radio.active {
+  border-color: var(--primary);
+  background: rgba(30, 113, 112, 0.1);
+  color: var(--primary);
+}
+
+.theme-radio input[type="radio"] {
+  display: none; 
+}
+
+[data-theme="light"] .btn-cancel {
+  background: var(--genre-chip-bg);
+  color: var(--text-main);
+  border: 1px solid var(--input-border-surface);
+}
+
+[data-theme="light"] .btn-cancel:hover {
+  background: var(--genre-chip-hover);
 }

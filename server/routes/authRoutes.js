@@ -1,6 +1,6 @@
 import express from "express";
 import { rateLimit } from "express-rate-limit";
-import { checkSession, login, signup, recoverPassword, resetPassword, getAccount, logout } from "../controllers/authController.js";
+import { checkSession, login, signup, recoverPassword, resetPassword, getAccount, logout, deleteAccount } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -39,5 +39,6 @@ router.post("/recover-password", emailLimiter, recoverPassword);
 router.post("/reset-password", resetPassword);
 router.get("/account", requireAuth, getAccount);
 router.post("/logout", requireAuth, logout);
+router.delete("/account", requireAuth, deleteAccount);
 
 export default router;

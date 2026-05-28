@@ -7,11 +7,22 @@ const baseURL = "https://api.themoviedb.org/3";
 
 export const getWatchlist = async (username) => {
   const userMovies = `
-    SELECT m.tmdb_id, m.title, m.release_year, m.media_type, m.poster_path, m.description, m.actors
+    SELECT 
+      m.tmdb_id, 
+      m.title, 
+      m.release_year, 
+      m.media_type, 
+      m.poster_path, 
+      m.description, 
+      m.actors,
+      COALESCE(ROUND(AVG(r.rating), 1), 0) AS average_rating,
+      COUNT(r.id) AS review_count
     FROM media m
     JOIN watchlist w ON m.id = w.movie_id
     JOIN users u ON w.user_id = u.id
+    LEFT JOIN ratings r ON m.id = r.movie_id
     WHERE u.username = $1
+    GROUP BY m.id, m.tmdb_id, m.title, m.release_year, m.media_type, m.poster_path, m.description, m.actors
   `;
   const watchlistResult = await db.query(userMovies, [username]);
   return watchlistResult.rows;
@@ -79,7 +90,7 @@ export const fetchWatchlist = async (req, res) => {
 
 export const searchMedia = async (req, res) => {
   try {
-    const details = await searchAndGetDetails(req.body.search, 4);
+    const details = await searchAndGetDetails(req.body.search, 10);
     const media = details.map((item) => ({
       title: item.title,
       image: item.photo && item.photo.trim() !== "" ? item.photo.trim() : null,
@@ -167,5 +178,62 @@ export const removeFavourite = async (req, res) => {
     res.json({ username, watchlist });
   } catch (err) {
     res.status(500).json({ message: "Could not remove favourite" });
+  }
+};
+
+export const upsertRating = async (req, res) => {
+  try {
+    const { username } = getSessionCredentials(req);
+    const { tmdb_id, title, release_year, media_type, poster_path, description, actors, rating, comments } = req.body;
+    if (!tmdb_id || rating < 1 || rating > 10) {
+      return res.status(400).json({ message: "Date invalide! ID lipsă sau rating în afara intervalului 1-10." });
+    }
+    const mediaResult = await db.query(
+      "INSERT INTO media (tmdb_id, title, release_year, media_type, poster_path, description, actors) VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT(tmdb_id) DO UPDATE SET title = EXCLUDED.title RETURNING id",
+      [tmdb_id, title, release_year, media_type, poster_path, description, actors]
+    );
+    const movieId = mediaResult.rows[0].id;
+    await db.query(
+      `INSERT INTO ratings (user_id, movie_id, rating, comments) 
+       VALUES ((SELECT id FROM users WHERE username = $1), $2, $3, $4) 
+       ON CONFLICT (user_id, movie_id) 
+       DO UPDATE SET rating = EXCLUDED.rating, comments = EXCLUDED.comments, created_at = CURRENT_TIMESTAMP`,
+      [username, movieId, rating, comments]
+    );
+
+    res.status(200).json({ message: "Review salvat cu succes!" });
+  } catch (err) {
+    console.error("Eroare la salvarea rating-ului:", err);
+    res.status(500).json({ message: "Eroare internă la salvarea review-ului." });
+  }
+};
+
+export const getMovieRatings = async (req, res) => {
+  try {
+    const tmdbId = req.params.tmdbId;
+    const ratingsQuery = `
+      SELECT r.rating, r.comments, r.created_at, u.username
+      FROM ratings r
+      JOIN users u ON r.user_id = u.id
+      JOIN media m ON r.movie_id = m.id
+      WHERE m.tmdb_id = $1
+      ORDER BY r.created_at DESC
+    `;
+
+    const result = await db.query(ratingsQuery, [tmdbId]);
+
+    if (result.rows.length === 0) {
+      return res.json({ averageRating: null, reviews: [] });
+    }
+    const totalRating = result.rows.reduce((sum, row) => sum + row.rating, 0);
+    const averageRating = (totalRating / result.rows.length).toFixed(1);
+
+    res.json({
+      averageRating,
+      reviews: result.rows
+    });
+  } catch (err) {
+    console.error("Eroare la încărcarea rating-urilor:", err);
+    res.status(500).json({ message: "Nu am putut încărca review-urile." });
   }
 };

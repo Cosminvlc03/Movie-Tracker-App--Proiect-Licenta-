@@ -1,21 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { asset } from "../utils/helpers";
+import { api } from "../api/apiClient";
 import Toast from "../components/Toast";
 
 export default function MediaPage({ media, watchlist, onAddFavourite, onRemoveFavourite, onHome }) {
   const [toast, setToast] = useState({ message: "", type: "" });
   const [isAdded, setIsAdded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [averageRating, setAverageRating] = useState(null);
+  const [myRating, setMyRating] = useState(10);
+  const [myComment, setMyComment] = useState("");
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
+  const currentId = media ? String(media.mediaId || media.tmdb_id || media.id) : null;
 
   useEffect(() => {
     if (media && watchlist) {
-      const currentId = String(media.mediaId || media.tmdb_id || media.id);
-      const alreadyExists = watchlist.some(
-        item => String(item.tmdb_id) === currentId
-      );
+      const alreadyExists = watchlist.some(item => String(item.tmdb_id) === currentId);
       setIsAdded(alreadyExists);
     }
-  }, [media, watchlist]);
+  }, [media, watchlist, currentId]);
+  useEffect(() => {
+    const fetchRatings = async () => {
+      if (!currentId) return;
+      try {
+        const data = await api(`/ratings/${currentId}`);
+        setAverageRating(data.averageRating);
+        setReviews(data.reviews || []);
+      } catch (err) {
+        console.error("Eroare la încărcarea recenziilor:", err);
+      }
+    };
+    fetchRatings();
+  }, [currentId]);
 
   if (!media) {
     return (
@@ -25,20 +43,20 @@ export default function MediaPage({ media, watchlist, onAddFavourite, onRemoveFa
     );
   }
 
+  const basePayload = {
+    tmdb_id: currentId,
+    title: media.title,
+    release_year: media.year || media.release_year,
+    media_type: Array.isArray(media.type) ? media.type.join(", ") : (media.type || "Film"),
+    poster_path: media.photo || media.poster_path || media.image || "",
+    description: media.description || "",
+    actors: Array.isArray(media.actors) ? media.actors.join(", ") : (media.actors || "")
+  };
+
   const handleAdd = async () => {
     setIsLoading(true);
     try {
-      const payload = {
-        tmdb_id: media.mediaId || media.tmdb_id || media.id,
-        title: media.title,
-        release_year: media.year || media.release_year,
-        media_type: Array.isArray(media.type) ? media.type.join(", ") : (media.type || "Film"),
-        poster_path: media.photo || media.poster_path || media.image || "",
-        description: media.description || "",
-        actors: Array.isArray(media.actors) ? media.actors.join(", ") : (media.actors || "")
-      };
-
-      await onAddFavourite(payload);
+      await onAddFavourite(basePayload);
       setIsAdded(true);
       setToast({ message: "Adăugat în watchlist!", type: "success" });
     } catch (err) {
@@ -51,7 +69,7 @@ export default function MediaPage({ media, watchlist, onAddFavourite, onRemoveFa
   const handleRemove = async () => {
     setIsLoading(true);
     try {
-      await onRemoveFavourite(media.mediaId || media.tmdb_id || media.id);
+      await onRemoveFavourite(currentId);
       setIsAdded(false);
       setToast({ message: "Eliminat din watchlist.", type: "success" });
     } catch (err) {
@@ -61,20 +79,30 @@ export default function MediaPage({ media, watchlist, onAddFavourite, onRemoveFa
     }
   };
 
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    setIsSubmittingReview(true);
+    try {
+      const payload = { ...basePayload, rating: Number(myRating), comments: myComment };
+      await api("/ratings", { method: "POST", body: JSON.stringify(payload) });
+      setToast({ message: "Recenzia a fost salvată!", type: "success" });
+      setMyComment("");
+      const data = await api(`/ratings/${currentId}`);
+      setAverageRating(data.averageRating);
+      setReviews(data.reviews || []);
+    } catch (err) {
+      setToast({ message: err.message || "Eroare la salvarea recenziei.", type: "error" });
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
   const imageUrl = media.photo || media.poster_path || media.image || asset("Film.svg");
-  
-  let genres = [];
-  if (Array.isArray(media.type)) {
-    genres = media.type.slice(0, 3);
-  } else if (typeof media.type === "string") {
-    genres = media.type.split(",").map(g => g.trim()).filter(g => g).slice(0, 3);
-  }
-  if (genres.length === 0) genres = ["Gen indisponibil"];
+  let genres = Array.isArray(media.type) ? media.type.slice(0, 3) : (typeof media.type === "string" ? media.type.split(",").map(g => g.trim()).filter(g => g).slice(0, 3) : ["Gen indisponibil"]);
 
   return (
-    <div className="media-details-wrapper">
+    <div className="media-details-wrapper" style={{ flexDirection: "column", alignItems: "center", gap: "30px" }}>
       <Toast message={toast.message} type={toast.type} onClose={() => setToast({ message: "", type: "" })} />
-      
       <div className="media-details-card">
         <div className="media-poster-container">
           <img src={imageUrl} alt={media.title} className="media-poster-large" />
@@ -94,6 +122,11 @@ export default function MediaPage({ media, watchlist, onAddFavourite, onRemoveFa
             {genres.map((genre, index) => (
               <span key={index} className="media-badge">{genre}</span>
             ))}
+            {averageRating && (
+              <span className="media-badge rating-badge">
+                ⭐ {averageRating} / 10
+              </span>
+            )}
           </div>
           
           <div className="media-section">
@@ -129,6 +162,56 @@ export default function MediaPage({ media, watchlist, onAddFavourite, onRemoveFa
             )}
           </div>
         </div>
+      </div>
+
+      <div className="reviews-section-container">
+        
+        <div className="review-form-card">
+          <h3>Lasă o recenzie</h3>
+          <form onSubmit={handleSubmitReview} className="review-form">
+            <div className="rating-select-group">
+              <label>Nota ta:</label>
+              <select value={myRating} onChange={(e) => setMyRating(e.target.value)} className="rating-select">
+                {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(num => (
+                  <option key={num} value={num}>{num} ⭐</option>
+                ))}
+              </select>
+            </div>
+            <textarea 
+              placeholder="Ce părere ai despre acest titlu? (Opțional)" 
+              value={myComment}
+              onChange={(e) => setMyComment(e.target.value)}
+              className="review-textarea"
+              rows="3"
+            />
+            <button type="submit" className="btn-primary btn-submit-review" disabled={isSubmittingReview}>
+              {isSubmittingReview ? "Se salvează..." : "Salvează Recenzia"}
+            </button>
+          </form>
+        </div>
+
+        <div className="community-reviews">
+          <h3>Recenziile Comunității</h3>
+          {reviews.length > 0 ? (
+            <div className="reviews-list">
+              {reviews.slice(0, 3).map((review, index) => (
+                <div key={index} className="review-card">
+                  <div className="review-header">
+                    <span className="review-author">@{review.username}</span>
+                    <span className="review-rating">⭐ {review.rating}/10</span>
+                  </div>
+                  <div className="review-date">
+                    {new Date(review.created_at).toLocaleDateString("ro-RO", { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </div>
+                  {review.comments && <p className="review-text">{review.comments}</p>}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="no-reviews">Nu există nicio recenzie încă. Fii primul care lasă una!</p>
+          )}
+        </div>
+
       </div>
     </div>
   );

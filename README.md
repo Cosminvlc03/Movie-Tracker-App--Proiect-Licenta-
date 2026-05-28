@@ -2,12 +2,17 @@
 
 1. Description:
 - This application is meant to work as a mix of multiple existing platforms i.e. Netflix, TMDB, IMDB, etc.
-- Users can create an account, search for different movies, and create personal wishlists.
+- Users can :
+      - create an account and manage it; 
+      - search for different movies and get details about them;
+      - create personal watchlists that they can manage;
+      - leave ratings and see a mean of those ratings;
+      - leave comments on movies and see other movies;
 - As such, the app is meant centralize multiple features, and add features absent from mentioned platforms.
 - Main future features will include:
-  - AI chatbot to ask for recommendations;
-  - rating system so users can leave ratings and see a mean of those ratings;
-  - capability to leave comments on movies;
+  - AI chatbot to ask about movies;
+  - Recommendation system;
+  - Admin page;
 
 2. Technical Section:
 The stack I used is as follows:
@@ -31,7 +36,7 @@ The necessary keys for the .env files are:
 - In the root folder run "npm install all" in the terminal;
 - Create a .env file with the keys mentioned previously;
 - Run the given SQL script in PostgreSQL;
-- Run the "npm run dev" command;
+- Run the "npm run dev" command in the terminal, both in the server folder and client folder;
 
 4. Extra Info:
 - This repo is meant to be a continuation of the same app that can be found in the web development portfolio repo.

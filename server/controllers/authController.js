@@ -155,12 +155,30 @@ export const resetPassword = async (req, res) => {
 export const getAccount = async (req, res) => {
   try {
     const { username } = getSessionCredentials(req);
-    const result = await db.query("SELECT mail FROM users WHERE username = $1", [username]);
-    const items = result.rows[0];
-    res.json({ username, mail: items.mail });
+    
+    const query = `
+      SELECT 
+        u.mail, 
+        u.created_at,
+        (SELECT COUNT(*) FROM ratings WHERE user_id = u.id) AS total_ratings,
+        (SELECT COUNT(*) FROM ratings WHERE user_id = u.id AND comments IS NOT NULL AND TRIM(comments) != '') AS total_comments
+      FROM users u
+      WHERE u.username = $1
+    `;
+    
+    const result = await db.query(query, [username]);
+    const data = result.rows[0];
+
+    res.json({ 
+      username, 
+      mail: data.mail,
+      createdAt: data.created_at,
+      totalRatings: parseInt(data.total_ratings, 10),
+      totalComments: parseInt(data.total_comments, 10)
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Could not load account" });
+    res.status(500).json({ message: "Could not load account details" });
   }
 };
 
@@ -172,4 +190,40 @@ export const logout = (req, res) => {
     }
     res.json({ message: "Logged out" });
   });
+};
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const { username } = getSessionCredentials(req);
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: "Parola este obligatorie pentru a șterge contul." });
+    }
+
+    const userResult = await db.query("SELECT * FROM users WHERE username = $1", [username]);
+    const user = userResult.rows[0];
+
+    if (!user) {
+      return res.status(404).json({ message: "Utilizatorul nu a fost găsit." });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Parolă incorectă!" });
+    }
+
+    await db.query("DELETE FROM watchlist WHERE user_id = $1", [user.id]);
+    await db.query("DELETE FROM users WHERE id = $1", [user.id]);
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Eroare la distrugerea sesiunii după ștergerea contului:", err);
+      }
+      res.clearCookie("connect.sid"); 
+      res.status(200).json({ message: "Cont șters cu succes." });
+    });
+  } catch (err) {
+    console.error("Eroare la ștergerea contului:", err);
+    res.status(500).json({ message: "Eroare internă la ștergerea contului." });
+  }
 };
