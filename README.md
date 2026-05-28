@@ -3,11 +3,11 @@
 1. Description:
 - This application is meant to work as a mix of multiple existing platforms i.e. Netflix, TMDB, IMDB, etc.
 - Users can :
-      - create an account and manage it; 
-      - search for different movies and get details about them;
-      - create personal watchlists that they can manage;
-      - leave ratings and see a mean of those ratings;
-      - leave comments on movies and see other movies;
+  - create an account and manage it; 
+  - search for different movies and get details about them;
+  - create personal watchlists that they can manage;
+  - leave ratings and see a mean of those ratings;
+  - leave comments on movies and see other movies;
 - As such, the app is meant centralize multiple features, and add features absent from mentioned platforms.
 - Main future features will include:
   - AI chatbot to ask about movies;
