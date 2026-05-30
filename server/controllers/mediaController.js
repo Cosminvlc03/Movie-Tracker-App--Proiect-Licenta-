@@ -30,7 +30,7 @@ export const getWatchlist = async (username) => {
 
 const getMovieDetails = async (mediaId, mediaType = "movie") => {
   try {
-    const detailsUrl = `${baseURL}/${mediaType}/${mediaId}?api_key=${apiKey}&append_to_response=credits`;
+    const detailsUrl = `${baseURL}/${mediaType}/${mediaId}?api_key=${apiKey}&append_to_response=credits,videos`;
     const response = await axios.get(detailsUrl);
     const data = response.data;
     const mainActors = (data.credits?.cast || [])
@@ -39,6 +39,9 @@ const getMovieDetails = async (mediaId, mediaType = "movie") => {
       .map((actor) => actor.name);
     const releaseDate = data.release_date || data.first_air_date;
     const releaseYear = releaseDate ? new Date(releaseDate).getFullYear() : "N/A";
+
+    const videos = data.videos?.results || [];
+    const trailer = videos.find((v) => v.site === "YouTube" && v.type === "Trailer");
 
     return {
       id: mediaId,
@@ -49,6 +52,7 @@ const getMovieDetails = async (mediaId, mediaType = "movie") => {
       posterPath: data.poster_path || null,
       description: data.overview,
       mainActors,
+      trailerKey: trailer ? trailer.key : null,
     };
   } catch (err) {
     console.error(`Error fetching details for ID ${mediaId}`, err);
@@ -115,6 +119,7 @@ export const getMediaDetails = async (req, res) => {
       photo: details.photo,
       description: details.description,
       actors: details.mainActors,
+      trailerKey: details.trailerKey,
     });
   } catch (err) {
     res.status(500).json({ message: "Could not load media details" });
@@ -150,6 +155,16 @@ export const getFavouriteDetails = async (req, res) => {
     const result = watchlistResult.rows[0];
 
     if (!result) return res.status(404).json({ message: "Media not found" });
+    let trailerKey = null;
+    try {
+      const videoUrl = `${baseURL}/movie/${result.tmdb_id}/videos?api_key=${apiKey}`;
+      const videoResponse = await axios.get(videoUrl);
+      const videos = videoResponse.data.results || [];
+      const trailer = videos.find((v) => v.site === "YouTube" && v.type === "Trailer");
+      if (trailer) trailerKey = trailer.key;
+    } catch (apiErr) {
+      console.error("Nu am putut încărca videoclipurile de la TMDB:", apiErr.message);
+    }
 
     res.json({
       title: result.title,
@@ -160,6 +175,7 @@ export const getFavouriteDetails = async (req, res) => {
       actors: result.actors,
       mediaId: result.id,
       tmdb_id: result.tmdb_id,
+      trailerKey: trailerKey,
     });
   } catch (err) {
     res.status(500).json({ message: "Could not load favourite details" });

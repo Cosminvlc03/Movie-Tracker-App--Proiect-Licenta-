@@ -10,6 +10,7 @@ export default function HomeMediaPage({ media, onHome, onRemoveFavourite }) {
   const [myRating, setMyRating] = useState(10);
   const [myComment, setMyComment] = useState("");
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [showTrailer, setShowTrailer] = useState(false);
 
   useEffect(() => {
     const fetchRatings = async () => {
@@ -120,6 +121,14 @@ export default function HomeMediaPage({ media, onHome, onRemoveFavourite }) {
             <button className="btn-danger-outline" onClick={handleRemove}>
               Elimină din watchlist
             </button>
+            {media.trailerKey && (
+              <button className="btn-trailer" onClick={() => setShowTrailer(true)}>
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                Vezi Trailer
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -171,8 +180,22 @@ export default function HomeMediaPage({ media, onHome, onRemoveFavourite }) {
             <p className="no-reviews">Nu există nicio recenzie încă. Fii primul care lasă una!</p>
           )}
         </div>
-
       </div>
+      {showTrailer && media.trailerKey && (
+        <div className="modal-overlay" onClick={() => setShowTrailer(false)}>
+          <div className="video-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-video-btn" onClick={() => setShowTrailer(false)}>✖</button>
+            <div className="video-responsive">
+              <iframe 
+                src={`https://www.youtube.com/embed/${media.trailerKey}?autoplay=1`} 
+                title="Trailer"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowFullScreen
+              ></iframe>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -12,6 +12,7 @@ import MediaPage from "./pages/MediaPage";
 import HomeMediaPage from "./pages/HomeMediaPage";
 import AccountPage from "./pages/AccountPage";
 import AboutPage from "./pages/AboutPage";
+import FriendsPage from "./pages/FriendsPage";
 import Navbar from "./components/Navbar";
 
 export default function App() {
@@ -159,6 +160,7 @@ export default function App() {
           <Route path="/favourite/:id" element={isAuthenticated ? <HomeMediaPage media={selectedMedia} onHome={goHome} onRemoveFavourite={removeFavourite} /> : <Navigate to="/login" replace />} />
           
           <Route path="/about" element={isAuthenticated ? <AboutPage onHome={goHome} /> : <Navigate to="/login" replace />} />
+          <Route path="/friends" element={isAuthenticated ? <FriendsPage onOpenMedia={openMediaFromSearch} /> : <Navigate to="/login" replace />} />
           <Route path="/account" element={
             isAuthenticated ? 
             <AccountPage user={auth} onLogout={logout} onDeleteAccount={handleDeleteAccount} theme={theme} onThemeChange={setTheme} /> 

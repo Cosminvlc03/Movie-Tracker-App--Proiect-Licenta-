@@ -8,6 +8,8 @@
   - create personal watchlists that they can manage;
   - leave ratings and see a mean of those ratings;
   - leave comments on movies and see other movies;
+  - watch trailers;
+  - search for friends, add them and see their watchlists;
 - As such, the app is meant centralize multiple features, and add features absent from mentioned platforms.
 - Main future features will include:
   - AI chatbot to ask about movies;
