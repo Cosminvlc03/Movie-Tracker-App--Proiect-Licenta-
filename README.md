@@ -10,11 +10,11 @@
   - leave comments on movies and see other movies;
   - watch trailers;
   - search for friends, add them and see their watchlists;
+  - login as admin, see users/movies stats and graphs, as well as exporting the data and managing users
 - As such, the app is meant centralize multiple features, and add features absent from mentioned platforms.
 - Main future features will include:
   - AI chatbot to ask about movies;
   - Recommendation system;
-  - Admin page;
 
 2. Technical Section:
 The stack I used is as follows:
@@ -45,3 +45,4 @@ The necessary keys for the .env files are:
 - Any of the old commits can be found in that repo.
 - There you can also find the old version, that uses EJS files instead of using React.
 - Further implementations will take place in THIS repository.
+- When using the admin page, make sure to run the Update line in PostgreSQL to update the specific user to an admin role.

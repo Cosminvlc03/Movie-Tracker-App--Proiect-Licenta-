@@ -14,11 +14,12 @@ import AccountPage from "./pages/AccountPage";
 import AboutPage from "./pages/AboutPage";
 import FriendsPage from "./pages/FriendsPage";
 import Navbar from "./components/Navbar";
+import AdminDashboard from "./pages/AdminDashboard";
 
 export default function App() {
   const navigate = useNavigate();
   
-  const [auth, setAuth] = useState({ username: "", watchlist: [] });
+  const [auth, setAuth] = useState({ username: "", role: "", watchlist: [] });
   const [toast, setToast] = useState({ message: "", type: "" });
   const [searchResults, setSearchResults] = useState([]);
   const [selectedMedia, setSelectedMedia] = useState(null);
@@ -37,15 +38,15 @@ export default function App() {
     api("/session")
       .then((data) => {
         if (data.isAuthenticated) {
-          setAuth({ username: data.username, watchlist: data.watchlist || [] });
+          setAuth({ username: data.username, role: data.role || "user", watchlist: data.watchlist || [] });
           if (window.location.pathname === "/" || window.location.pathname === "/login") {
-            navigate("/home");
+            navigate(data.role === "admin" ? "/admin-dashboard" : "/home");
           }
         }
       })
       .catch(() => undefined)
       .finally(() => setIsLoading(false));
-  }, [navigate]);
+  }, [navigate])
 
   const refreshWatchlist = async () => {
     const data = await api("/watchlist");
@@ -64,8 +65,8 @@ export default function App() {
         method: "POST",
         body: JSON.stringify({ username, password }),
       });
-      setAuth({ username: data.username, watchlist: data.watchlist || [] });
-      navigate("/home");
+      setAuth({ username: data.username, role: data.role || "user", watchlist: data.watchlist || [] });
+      navigate(data.role === "admin" ? "/admin-dashboard" : "/home");
     } catch (err) {
       setToast({ message: err.message || "Invalid username or password", type: "error" });
     }
@@ -124,6 +125,8 @@ export default function App() {
   }
 
   const isAuthenticated = Boolean(auth.username);
+  const isAdmin = auth.role === "admin";
+  const isNormalUser = isAuthenticated && !isAdmin;
 
   const handleDeleteAccount = async (password) => {
     await api("/account", {
@@ -136,7 +139,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {isAuthenticated && (
+      {isNormalUser && (
         <Navbar 
           onSearch={handleSearch} 
           onAccount={() => navigate("/account")} 
@@ -151,23 +154,17 @@ export default function App() {
           <Route path="/signup" element={<SignupPage onSignup={handleSignup} onBack={() => navigate("/login")} />} />
           <Route path="/forgotten" element={<ForgottenPage onBack={() => navigate("/login")} />} />
           <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-          <Route path="/home" element={isAuthenticated ? <HomePage username={auth.username} watchlist={auth.watchlist} onOpenMedia={openMediaFromWatchlist} /> : <Navigate to="/login" replace />} />
-          
-          <Route path="/search" element={isAuthenticated ? <SearchPage media={searchResults} onOpenMedia={openMediaFromSearch} /> : <Navigate to="/login" replace />} />
-          
-          <Route path="/media/:id" element={isAuthenticated ? <MediaPage media={selectedMedia} watchlist={auth.watchlist} onHome={goHome} onAddFavourite={addFavourite} onRemoveFavourite={removeFavourite} /> : <Navigate to="/login" replace />} />
-          
-          <Route path="/favourite/:id" element={isAuthenticated ? <HomeMediaPage media={selectedMedia} onHome={goHome} onRemoveFavourite={removeFavourite} /> : <Navigate to="/login" replace />} />
-          
-          <Route path="/about" element={isAuthenticated ? <AboutPage onHome={goHome} /> : <Navigate to="/login" replace />} />
-          <Route path="/friends" element={isAuthenticated ? <FriendsPage onOpenMedia={openMediaFromSearch} /> : <Navigate to="/login" replace />} />
-          <Route path="/account" element={
-            isAuthenticated ? 
-            <AccountPage user={auth} onLogout={logout} onDeleteAccount={handleDeleteAccount} theme={theme} onThemeChange={setTheme} /> 
-            : <Navigate to="/login" replace />
-          }/>
-          
-          <Route path="*" element={<Navigate to="/home" replace />} />
+
+          <Route path="/admin-dashboard" element={isAdmin ? <AdminDashboard onLogout={logout} /> : <Navigate to={isAuthenticated ? "/home" : "/login"} replace />} />
+
+          <Route path="/home" element={isNormalUser ? <HomePage username={auth.username} watchlist={auth.watchlist} onOpenMedia={openMediaFromWatchlist} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
+          <Route path="/search" element={isAuthenticated ? <SearchPage media={searchResults} onOpenMedia={openMediaFromSearch} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
+          <Route path="/media/:id" element={isAuthenticated ? <MediaPage media={selectedMedia} watchlist={auth.watchlist} onHome={goHome} onAddFavourite={addFavourite} onRemoveFavourite={removeFavourite} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
+          <Route path="/favourite/:id" element={isAuthenticated ? <HomeMediaPage media={selectedMedia} onHome={goHome} onRemoveFavourite={removeFavourite} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
+          <Route path="/about" element={isAuthenticated ? <AboutPage onHome={goHome} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
+          <Route path="/friends" element={isAuthenticated ? <FriendsPage onOpenMedia={openMediaFromSearch} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
+          <Route path="/account" element={isNormalUser ? <AccountPage user={auth} onLogout={logout} onDeleteAccount={handleDeleteAccount} theme={theme} onThemeChange={setTheme} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace /> }/>
+          <Route path="*" element={<Navigate to={isAdmin ? "/admin-dashboard" : "/home"} replace />} />
         </Routes>
       </div>
     </div>

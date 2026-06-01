@@ -10,6 +10,7 @@ const loginLimiter = rateLimit({
   message: { message: "Prea multe încercări eșuate. Te rugăm să aștepți 15 minute." },
   standardHeaders: true,
   legacyHeaders: false,
+  skipSuccessfulRequests: true,
 });
 
 const emailLimiter = rateLimit({
@@ -28,6 +29,13 @@ export const preventBrowserCache = (req, res, next) => {
 export const requireAuth = (req, res, next) => {
   if (!req.session?.isAuthenticated) {
     return res.status(401).json({ message: "Not authenticated" });
+  }
+  next();
+};
+
+export const requireAdmin = (req, res, next) => {
+  if (!req.session?.isAuthenticated || req.session.role !== 'admin') {
+    return res.status(403).json({ message: "Acces interzis. Doar administratorii pot accesa această rută." });
   }
   next();
 };

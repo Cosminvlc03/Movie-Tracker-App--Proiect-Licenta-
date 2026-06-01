@@ -8,6 +8,7 @@ import { getWatchlist } from "./mediaController.js";
 export const getSessionCredentials = (req) => {
   return {
     username: req.session.username,
+    role: req.session.role || 'user',
   };
 };
 
@@ -15,9 +16,9 @@ export const checkSession = async (req, res) => {
   if (!req.session?.isAuthenticated) {
     return res.json({ isAuthenticated: false });
   }
-  const { username } = getSessionCredentials(req);
+  const { username, role } = getSessionCredentials(req);
   const watchlist = await getWatchlist(username);
-  res.json({ isAuthenticated: true, username, watchlist });
+  res.json({ isAuthenticated: true, username, role, watchlist });
 };
 
 export const login = async (req, res) => {
@@ -35,8 +36,9 @@ export const login = async (req, res) => {
     }
     req.session.isAuthenticated = true;
     req.session.username = user.username;
-    const watchlist = await getWatchlist(username);
-    res.json({ username, watchlist });
+    req.session.role = user.role;
+    const watchlist = await getWatchlist(user.username);
+    res.json({ message: "Logged in", username: user.username, role: user.role, watchlist });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Login failed" });

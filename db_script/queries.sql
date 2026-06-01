@@ -1,13 +1,21 @@
+-- ==========================================
+-- 1. TABELA UTILIZATORI (USERS)
+-- ==========================================
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(30) NOT NULL,
     mail VARCHAR(50) NOT NULL,
     password VARCHAR(100) NOT NULL,
-    fruit VARCHAR(30) NOT NULL,
+    role VARCHAR(20) DEFAULT 'user',
+    reset_token VARCHAR(255),
+    reset_token_expiry BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE media(
+-- ==========================================
+-- 2. TABELA MEDIA (FILME)
+-- ==========================================
+CREATE TABLE media (
     id SERIAL PRIMARY KEY,
     tmdb_id INTEGER NOT NULL UNIQUE,
     title VARCHAR(50) NOT NULL,
@@ -18,12 +26,20 @@ CREATE TABLE media(
     actors VARCHAR(300)
 );
 
+-- ==========================================
+-- 3. TABELA WATCHLIST
+-- ==========================================
 CREATE TABLE watchlist (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    movie_id INTEGER REFERENCES media(id) ON DELETE CASCADE
+    movie_id INTEGER REFERENCES media(id) ON DELETE CASCADE,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_id, movie_id)
 );
 
+-- ==========================================
+-- 4. TABELA RECENZII (RATINGS)
+-- ==========================================
 CREATE TABLE ratings (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -33,3 +49,17 @@ CREATE TABLE ratings (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (user_id, movie_id)
 );
+
+-- ==========================================
+-- 5. TABELA PRIETENII (FRIENDSHIPS)
+-- ==========================================
+CREATE TABLE friendships (
+    id SERIAL PRIMARY KEY,
+    sender_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    receiver_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(sender_id, receiver_id)
+);
+
+UPDATE users SET role = 'admin' WHERE username = 'your_admin_username'; -- Înlocuiește cu username-ul real al adminului tău
