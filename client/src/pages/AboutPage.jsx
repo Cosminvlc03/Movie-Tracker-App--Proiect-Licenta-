@@ -1,31 +1,33 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { asset } from "../utils/helpers";
 
 export default function AboutPage({ onHome }) {
+  const { t } = useTranslation();
+
   return (
     <div className="bodyLayout">
       <div className="border" id="aboutBorderLeft">
       </div>
       <div className="center">
         <div className="mainSectionAbout">
-          <h2 className="aboutTitle">About MyMovieTracker</h2>
+          <h2 className="aboutTitle">{t('about.title')}</h2>
+          
           <div className="aboutDetails">
-            <h3 className="aboutH3">What does the app do?</h3>
-            <p className="aboutP">- Tracks movies you want to watch</p>
-            <p className="aboutP">- Lets you build a personal watchlist</p>
-            <p className="aboutP">- Shows details about movies/shows</p>
-            <h3 className="aboutH3">Why it exists?</h3>
-            <p className="aboutP">- Too many streaming platforms</p>
-            <p className="aboutP">- A simple, universal watchlist</p>
-            <h3 className="aboutH3">Key features?</h3>
-            <p className="aboutP">- Search movies and shows</p>
-            <p className="aboutP">- Add them to your watchlist</p>
-            <p className="aboutP">- View details about them</p>
-            <h3 className="aboutH3">How it works?</h3>
-            <p className="aboutP">- Powered by Node.js, Express.js, PostrgeSQL .</p>
-            <p className="aboutP">- This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
-            <h3 className="aboutH3">Who made it?</h3>
-            <p className="aboutP">- This project was made by Cosmin V.</p>
+            <h3 className="aboutH3">{t('about.visionTitle')}</h3>
+            <p className="aboutP">{t('about.visionText')}</p>
+
+            <h3 className="aboutH3">{t('about.experienceTitle')}</h3>
+            <p className="aboutP">{t('about.experienceText')}</p>
+
+            <h3 className="aboutH3">{t('about.techTitle')}</h3>
+            <p className="aboutP">{t('about.techText')}</p>
+            <p className="aboutP" style={{ fontSize: "0.85rem", fontStyle: "italic", marginTop: "10px", color: "var(--text-muted, #aaa)" }}>
+              {t('about.tmdbNotice')}
+            </p>
+
+            <h3 className="aboutH3">{t('about.founderTitle')}</h3>
+            <p className="aboutP">{t('about.founderText')}</p>
           </div>
         </div>
       </div>

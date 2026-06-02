@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { asset } from "../utils/helpers";
 import { api } from "../api/apiClient";
+import { useTranslation } from "react-i18next";
 import Toast from "../components/Toast";
 
 export default function HomeMediaPage({ media, onHome, onRemoveFavourite }) {
+  const { t, i18n } = useTranslation();
   const [toast, setToast] = useState({ message: "", type: "" });
   const [reviews, setReviews] = useState([]);
   const [averageRating, setAverageRating] = useState(null);
@@ -34,7 +36,7 @@ export default function HomeMediaPage({ media, onHome, onRemoveFavourite }) {
   } else if (Array.isArray(media.type)) {
     genres = media.type.slice(0, 3);
   } else {
-    genres = ["Gen indisponibil"];
+    genres = [t('mediaDetails.genresUnavailable')];
   }
 
   const handleRemove = async () => {
@@ -42,7 +44,7 @@ export default function HomeMediaPage({ media, onHome, onRemoveFavourite }) {
       await onRemoveFavourite(media.tmdb_id);
       onHome();
     } catch (err) {
-      setToast({ message: "Eroare la eliminare.", type: "error" });
+      setToast({ message: t('mediaDetails.errorRemove'), type: "error" });
     }
   };
 
@@ -64,14 +66,14 @@ export default function HomeMediaPage({ media, onHome, onRemoveFavourite }) {
       
       await api("/ratings", { method: "POST", body: JSON.stringify(payload) });
       
-      setToast({ message: "Recenzia a fost salvată!", type: "success" });
+      setToast({ message: t('mediaDetails.reviewSaved'), type: "success" });
       setMyComment(""); 
       
       const data = await api(`/ratings/${media.tmdb_id}`);
       setAverageRating(data.averageRating);
       setReviews(data.reviews || []);
     } catch (err) {
-      setToast({ message: err.message || "Eroare la salvarea recenziei.", type: "error" });
+      setToast({ message: err.message || t('mediaDetails.errorSaveReview'), type: "error" });
     } finally {
       setIsSubmittingReview(false);
     }
@@ -88,7 +90,7 @@ export default function HomeMediaPage({ media, onHome, onRemoveFavourite }) {
         
         <div className="media-info-container">
           <div className="media-header">
-            <button className="back-title-btn" onClick={onHome} title="Înapoi la Home">
+            <button className="back-title-btn" onClick={onHome} title={t('mediaDetails.backToHome')}>
               <img src={asset("arrow_back.svg")} alt="back" className="back-arrow-icon" />
             </button>
             <h1 className="media-title">
@@ -108,25 +110,25 @@ export default function HomeMediaPage({ media, onHome, onRemoveFavourite }) {
           </div>
           
           <div className="media-section">
-            <h3>Descriere</h3>
-            <p className="media-description">{media.description || "Nicio descriere disponibilă."}</p>
+            <h3>{t('mediaDetails.descriptionTitle')}</h3>
+            <p className="media-description">{media.description || t('mediaDetails.noDescription')}</p>
           </div>
-          
+
           <div className="media-section">
-            <h3>Distribuție</h3>
-            <p className="media-actors">{media.actors || "Indisponibil."}</p>
+            <h3>{t('mediaDetails.castTitle')}</h3>
+            <p className="media-actors">{media.actors || t('mediaDetails.noActors')}</p>
           </div>
 
           <div className="media-actions">
             <button className="btn-danger-outline" onClick={handleRemove}>
-              Elimină din watchlist
+              {t('mediaDetails.removeFromWatchlist')}
             </button>
             {media.trailerKey && (
               <button className="btn-trailer" onClick={() => setShowTrailer(true)}>
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M8 5v14l11-7z" />
                 </svg>
-                Vezi Trailer
+                {t('mediaDetails.viewTrailer')}
               </button>
             )}
           </div>
@@ -136,10 +138,10 @@ export default function HomeMediaPage({ media, onHome, onRemoveFavourite }) {
       <div className="reviews-section-container">
         
         <div className="review-form-card">
-          <h3>Lasă o recenzie</h3>
+          <h3>{t('mediaDetails.leaveReviewTitle')}</h3>
           <form onSubmit={handleSubmitReview} className="review-form">
             <div className="rating-select-group">
-              <label>Nota ta:</label>
+              <label>{t('mediaDetails.yourRating')}</label>
               <select value={myRating} onChange={(e) => setMyRating(e.target.value)} className="rating-select">
                 {[10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(num => (
                   <option key={num} value={num}>{num} ⭐</option>
@@ -147,20 +149,20 @@ export default function HomeMediaPage({ media, onHome, onRemoveFavourite }) {
               </select>
             </div>
             <textarea 
-              placeholder="Ce părere ai despre acest titlu? (Opțional)" 
+              placeholder={t('mediaDetails.commentPlaceholder')} 
               value={myComment}
               onChange={(e) => setMyComment(e.target.value)}
               className="review-textarea"
               rows="3"
             />
             <button type="submit" className="btn-primary btn-submit-review" disabled={isSubmittingReview}>
-              {isSubmittingReview ? "Se salvează..." : "Salvează Recenzia"}
+              {isSubmittingReview ? t('mediaDetails.saving') : t('mediaDetails.saveReview')}
             </button>
           </form>
         </div>
 
         <div className="community-reviews">
-          <h3>Recenziile Comunității</h3>
+          <h3>{t('mediaDetails.communityReviewsTitle')}</h3>
           {reviews.length > 0 ? (
             <div className="reviews-list">
               {reviews.slice(0, 3).map((review, index) => (
@@ -170,14 +172,14 @@ export default function HomeMediaPage({ media, onHome, onRemoveFavourite }) {
                     <span className="review-rating">⭐ {review.rating}/10</span>
                   </div>
                   <div className="review-date">
-                    {new Date(review.created_at).toLocaleDateString("ro-RO", { year: 'numeric', month: 'short', day: 'numeric' })}
+                    {new Date(review.created_at).toLocaleDateString(i18n.language, { year: 'numeric', month: 'short', day: 'numeric' })}
                   </div>
                   {review.comments && <p className="review-text">{review.comments}</p>}
                 </div>
               ))}
             </div>
           ) : (
-            <p className="no-reviews">Nu există nicio recenzie încă. Fii primul care lasă una!</p>
+            <p className="no-reviews">{t('mediaDetails.noReviewsYet')}</p>
           )}
         </div>
       </div>

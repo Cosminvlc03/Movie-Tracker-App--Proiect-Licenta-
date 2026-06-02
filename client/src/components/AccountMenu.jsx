@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { asset } from "../utils/helpers";
 
 export default function AccountMenu({ onAccount, onAbout, onLogout }) {
+  const { t } = useTranslation();
   const [panelOpen, setPanelOpen] = useState(false);
   const [logoutOpen, setLogoutOpen] = useState(false);
 
@@ -23,20 +25,20 @@ export default function AccountMenu({ onAccount, onAbout, onLogout }) {
         </button>
 
         <form id="accountForm" onSubmit={(e) => { e.preventDefault(); onAccount(); }}>
-          <input type="submit" value="Account" className="accountSubmit" />
+          <input type="submit" value={t('accountMenu.account')} className="accountSubmit" />
         </form>
 
         <form id="aboutForm" onSubmit={(e) => { e.preventDefault(); onAbout(); }}>
-          <input type="submit" value="About" className="accountSubmit" />
+          <input type="submit" value={t('accountMenu.about')} className="accountSubmit" />
         </form>
 
         <button type="button" id="logoutPopUpButton" className="accountSubmit" onClick={() => setLogoutOpen(true)}>
-          Log Out
+          {t('accountMenu.logout')}
         </button>
       </div>
 
       <div id="logoutPopUp" className={logoutOpen ? "" : "hidden"}>
-        <h3 className="exitText">Are you sure you want to log out?</h3>
+        <h3 className="exitText">{t('accountMenu.confirmLogout')}</h3>
         <div id="logoutPopUpIcons">
           <button type="button" id="logoutButton" onClick={onLogout}>
             <img src={asset("Check (1).svg")} alt="logOut" id="yButton" />

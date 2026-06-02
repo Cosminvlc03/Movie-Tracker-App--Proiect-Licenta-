@@ -2,8 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { asset } from "../utils/helpers";
 import { api } from "../api/apiClient";
+import { useTranslation } from "react-i18next";
+import LanguageSwitch from "../components/LanguageSwitch";
 
 export default function Navbar({ onSearch, onAccount, onLogout }) {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [panelOpen, setPanelOpen] = useState(false);
@@ -32,7 +35,7 @@ export default function Navbar({ onSearch, onAccount, onLogout }) {
   const submitSearch = (e) => {
     e.preventDefault();
     if (search.trim()) {
-      onSearch(search);
+      onSearch(search, i18n.language);
       setSearch("");
     }
   };
@@ -41,17 +44,20 @@ export default function Navbar({ onSearch, onAccount, onLogout }) {
     <>
       <nav className="navbar">
         <div className="nav-brand" onClick={() => navigate("/home")}>
-          MyMovieTracker
+          {t('nav.brand')}
         </div>
         <form className="nav-search" onSubmit={submitSearch}>
           <input
             type="search"
-            placeholder="Caută filme sau seriale..."
+            placeholder={t('nav.searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </form>
-        <div className="nav-actions">
+        <div className="nav-actions" style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+          
+          <LanguageSwitch />
+
           <button className="nav-account-btn" onClick={() => setPanelOpen(true)} style={{ position: 'relative' }}>
             <img src={asset("account_circle.svg")} alt="Account" />
             {pendingCount > 0 && <span className="nav-notification-dot"></span>}
@@ -65,26 +71,34 @@ export default function Navbar({ onSearch, onAccount, onLogout }) {
         </button>
         
         <button className="panel-link" onClick={() => { setPanelOpen(false); navigate("/friends"); }}>
-          Prieteni
+          {t('nav.friends')}
           {pendingCount > 0 && <span className="notification-badge">{pendingCount}</span>}
         </button>
         <button className="panel-link" onClick={() => { setPanelOpen(false); onAccount(); }}>
-          Detalii Cont
+          {t('nav.accountDetails')}
         </button>
         <button className="panel-link" onClick={() => { setPanelOpen(false); navigate("/about"); }}>
-          Despre
+          {t('nav.about')}
+        </button>
+        <button className="panel-link" onClick={() => { setPanelOpen(false); navigate("/privacy"); }}>
+          {t('nav.privacy')}
         </button>
         <button className="panel-link danger" onClick={() => setLogoutOpen(true)}>
-          Deconectare
+          {t('nav.logout')}
         </button>
       </div>
+      
       {logoutOpen && (
         <div className="logout-overlay">
           <div className="logout-modal">
-            <h3>Ești sigur că vrei să ieși?</h3>
+            <h3>{t('nav.confirmLogoutTitle')}</h3>
             <div className="logout-actions">
-              <button className="btn-confirm" onClick={() => { setLogoutOpen(false); onLogout(); }}>Da, deconectează-mă</button>
-              <button className="btn-cancel" onClick={() => setLogoutOpen(false)}>Anulează</button>
+              <button className="btn-confirm" onClick={() => { setLogoutOpen(false); onLogout(); }}>
+                {t('nav.confirmLogoutBtn')}
+              </button>
+              <button className="btn-cancel" onClick={() => setLogoutOpen(false)}>
+                {t('nav.cancel')}
+              </button>
             </div>
           </div>
         </div>

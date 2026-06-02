@@ -15,6 +15,8 @@ import AboutPage from "./pages/AboutPage";
 import FriendsPage from "./pages/FriendsPage";
 import Navbar from "./components/Navbar";
 import AdminDashboard from "./pages/AdminDashboard";
+import AIChatWidget from "./components/AIChatWidget";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 export default function App() {
   const navigate = useNavigate();
@@ -78,8 +80,8 @@ export default function App() {
     navigate("/login");
   };
 
-  const handleSearch = async (search) => {
-    const data = await api("/search", { method: "POST", body: JSON.stringify({ search }) });
+  const handleSearch = async (search, language) => {
+    const data = await api("/search", { method: "POST", body: JSON.stringify({ search, language }) });
     setSearchResults(data.media || []);
     navigate("/search");
   };
@@ -157,9 +159,9 @@ export default function App() {
 
           <Route path="/admin-dashboard" element={isAdmin ? <AdminDashboard onLogout={logout} /> : <Navigate to={isAuthenticated ? "/home" : "/login"} replace />} />
 
-          <Route path="/home" element={isNormalUser ? <HomePage username={auth.username} watchlist={auth.watchlist} onOpenMedia={openMediaFromWatchlist} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
-          <Route path="/search" element={isAuthenticated ? <SearchPage media={searchResults} onOpenMedia={openMediaFromSearch} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
-          <Route path="/media/:id" element={isAuthenticated ? <MediaPage media={selectedMedia} watchlist={auth.watchlist} onHome={goHome} onAddFavourite={addFavourite} onRemoveFavourite={removeFavourite} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
+          <Route path="/privacy" element={isAuthenticated ? (<PrivacyPolicy /> ) : (<Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />)} />
+          <Route path="/home" element={isNormalUser ? <HomePage username={auth.username} watchlist={auth.watchlist} onOpenMedia={openMediaFromWatchlist} onOpenNewMedia={openMediaFromSearch} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />          <Route path="/media/:id" element={isAuthenticated ? <MediaPage media={selectedMedia} watchlist={auth.watchlist} onHome={goHome} onAddFavourite={addFavourite} onRemoveFavourite={removeFavourite} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
+          <Route path="/search" element={isAuthenticated ? (<SearchPage media={searchResults} onOpenMedia={openMediaFromSearch} />) : (<Navigate to="/login" replace />)} />
           <Route path="/favourite/:id" element={isAuthenticated ? <HomeMediaPage media={selectedMedia} onHome={goHome} onRemoveFavourite={removeFavourite} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
           <Route path="/about" element={isAuthenticated ? <AboutPage onHome={goHome} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
           <Route path="/friends" element={isAuthenticated ? <FriendsPage onOpenMedia={openMediaFromSearch} /> : <Navigate to={isAdmin ? "/admin-dashboard" : "/login"} replace />} />
@@ -167,6 +169,7 @@ export default function App() {
           <Route path="*" element={<Navigate to={isAdmin ? "/admin-dashboard" : "/home"} replace />} />
         </Routes>
       </div>
+      {isNormalUser && <AIChatWidget />}
     </div>
   );
 }

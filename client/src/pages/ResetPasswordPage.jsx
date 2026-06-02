@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { api } from "../api/apiClient";
 import { asset } from "../utils/helpers";
 import Toast from "../components/Toast";
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation();
   const { token } = useParams();
   const navigate = useNavigate();
   
@@ -15,12 +17,12 @@ export default function ResetPasswordPage() {
     event.preventDefault();
     setToast({ message: "", type: "" });
     if (form.newPassword !== form.confirmPassword) {
-      setToast({ message: "Parolele nu coincid!", type: "error" });
+      setToast({ message: t('resetPassword.errorMismatch'), type: "error" });
       return;
     }
 
     if (form.newPassword.length < 5) {
-       setToast({ message: "Parola trebuie să aibă minim 5 caractere.", type: "error" });
+       setToast({ message: t('resetPassword.errorLength'), type: "error" });
        return;
     }
 
@@ -35,7 +37,7 @@ export default function ResetPasswordPage() {
         navigate("/login");
       }, 3000);
     } catch (err) {
-      setToast({ message: err.message || "Reset failed", type: "error" });
+      setToast({ message: err.message || t('resetPassword.errorDefault'), type: "error" });
     }
   };
 
@@ -52,13 +54,15 @@ export default function ResetPasswordPage() {
         <h1 className="mainTitle">MyMovieTracker</h1>
         <div className="mainSection">
           <form id="forgottenProfile" onSubmit={submit}>
-            <h2 style={{ color: "#C3C5D7", fontFamily: "Alkatra", textAlign: "center", margin: 0 }}>Setează parola nouă</h2>
+            <h2 style={{ color: "#C3C5D7", fontFamily: "Alkatra", textAlign: "center", margin: 0 }}>
+              {t('resetPassword.title')}
+            </h2>
             
-            <input type="password" className="input" placeholder="Noua parolă" required value={form.newPassword} onChange={(e) => setForm({ ...form, newPassword: e.target.value })} />
+            <input type="password" className="input" placeholder={t('resetPassword.placeholderNew')} required value={form.newPassword} onChange={(e) => setForm({ ...form, newPassword: e.target.value })} />
             
-            <input type="password" className="input" placeholder="Confirmă parola" required value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} />
+            <input type="password" className="input" placeholder={t('resetPassword.placeholderConfirm')} required value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} />
             
-            <input type="submit" className="recoverPassword" id="recoverPasswordButton" value="Salvează parola" />
+            <input type="submit" className="recoverPassword" id="recoverPasswordButton" value={t('resetPassword.submitBtn')} />
           </form>
         </div>
       </div>

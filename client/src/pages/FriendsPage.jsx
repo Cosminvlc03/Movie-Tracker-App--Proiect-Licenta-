@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/apiClient";
 import Toast from "../components/Toast";
 import { asset } from "../utils/helpers";
 
 export default function FriendsPage({ onOpenMedia }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [toast, setToast] = useState({ message: "", type: "" });
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,7 +23,7 @@ export default function FriendsPage({ onOpenMedia }) {
       setAcceptedFriends(data.acceptedFriends || []);
     } catch (err) {
       console.error(err);
-      setToast({ message: "Nu am putut încărca datele sociale.", type: "error" });
+      setToast({ message: t('friends.errorLoadData'), type: "error" });
     }
   };
 
@@ -36,10 +38,10 @@ export default function FriendsPage({ onOpenMedia }) {
       const data = await api(`/friends/search?query=${encodeURIComponent(searchQuery)}`);
       setSearchResults(data.users || []);
       if (data.users.length === 0) {
-        setToast({ message: "Nu am găsit niciun utilizator cu acest nume.", type: "error" });
+        setToast({ message: t('friends.errorNoUserFound'), type: "error" });
       }
     } catch (err) {
-      setToast({ message: "Eroare la căutare.", type: "error" });
+      setToast({ message: t('friends.errorSearch'), type: "error" });
     }
   };
 
@@ -49,10 +51,10 @@ export default function FriendsPage({ onOpenMedia }) {
         method: "POST",
         body: JSON.stringify({ receiverId })
       });
-      setToast({ message: "Cererea de prietenie a fost trimisă!", type: "success" });
+      setToast({ message: t('friends.requestSent'), type: "success" });
       setSearchResults(prev => prev.filter(user => user.id !== receiverId));
     } catch (err) {
-      setToast({ message: "Nu am putut trimite cererea.", type: "error" });
+      setToast({ message: t('friends.errorSendRequest'), type: "error" });
     }
   };
 
@@ -62,11 +64,12 @@ export default function FriendsPage({ onOpenMedia }) {
         method: "PUT",
         body: JSON.stringify({ requestId, action })
       });
-      setToast({ message: action === "accepted" ? "Cerere acceptată!" : "Cerere respinsă", type: "success" });
+      const successMessage = action === "accepted" ? t('friends.requestAccepted') : t('friends.requestRejected');
+      setToast({ message: successMessage, type: "success" });
       loadFriendsData();
       window.dispatchEvent(new Event("update-notifications"));
     } catch (err) {
-      setToast({ message: "Eroare la procesarea cererii.", type: "error" });
+      setToast({ message: t('friends.errorRespond'), type: "error" });
     }
   };
 
@@ -81,11 +84,11 @@ export default function FriendsPage({ onOpenMedia }) {
         method: "DELETE",
         body: JSON.stringify({ friendUsername: friendToRemove })
       });
-      setToast({ message: "Prieten eliminat cu succes!", type: "success" });
+      setToast({ message: t('friends.friendRemoved'), type: "success" });
       loadFriendsData();
       setFriendToRemove(null);
     } catch (err) {
-      setToast({ message: "Eroare la ștergerea prietenului.", type: "error" });
+      setToast({ message: t('friends.errorRemoveFriend'), type: "error" });
     }
   };
 
@@ -93,18 +96,18 @@ export default function FriendsPage({ onOpenMedia }) {
     <div className="page-wrapper">
       <Toast message={toast.message} type={toast.type} onClose={() => setToast({ message: "", type: "" })} />
       
-      <h2 className="welcome-text">Social</h2>
+      <h2 className="welcome-text">{t('friends.title')}</h2>
 
       <div className="friends-search-section">
         <form onSubmit={handleSearch} className="friends-search-form">
           <input 
             type="text" 
-            placeholder="Caută utilizatori după nume..." 
+            placeholder={t('friends.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="local-search-input"
           />
-          <button type="submit" className="btn-primary">Caută</button>
+          <button type="submit" className="btn-primary">{t('friends.searchBtn')}</button>
         </form>
 
         {searchResults.length > 0 && (
@@ -112,7 +115,7 @@ export default function FriendsPage({ onOpenMedia }) {
             {searchResults.map(user => (
               <div key={user.id} className="search-result-card">
                 <span>@{user.username}</span>
-                <button onClick={() => handleSendRequest(user.id)} className="btn-secondary">Adaugă</button>
+                <button onClick={() => handleSendRequest(user.id)} className="btn-secondary">{t('friends.addBtn')}</button>
               </div>
             ))}
           </div>
@@ -121,14 +124,14 @@ export default function FriendsPage({ onOpenMedia }) {
 
       {pendingRequests.length > 0 && (
         <div className="pending-requests-section">
-          <h3>Cereri Primite</h3>
+          <h3>{t('friends.pendingRequests')}</h3>
           <div className="pending-grid">
             {pendingRequests.map(req => (
               <div key={req.request_id} className="pending-card">
-                <span>@{req.username} dorește să vă conectați</span>
+                <span>{t('friends.wantsToConnect', { username: req.username })}</span>
                 <div className="pending-actions">
-                  <button onClick={() => handleRespond(req.request_id, 'accepted')} className="btn-primary" style={{ padding: "8px 16px" }}>Acceptă</button>
-                  <button onClick={() => handleRespond(req.request_id, 'rejected')} className="btn-danger-outline" style={{ padding: "8px 16px" }}>Respinge</button>
+                  <button onClick={() => handleRespond(req.request_id, 'accepted')} className="btn-primary" style={{ padding: "8px 16px" }}>{t('friends.acceptBtn')}</button>
+                  <button onClick={() => handleRespond(req.request_id, 'rejected')} className="btn-danger-outline" style={{ padding: "8px 16px" }}>{t('friends.rejectBtn')}</button>
                 </div>
               </div>
             ))}
@@ -137,9 +140,9 @@ export default function FriendsPage({ onOpenMedia }) {
       )}
 
       <div className="accepted-friends-section">
-        <h3>Prietenii Tăi ({acceptedFriends.length})</h3>
+        <h3>{t('friends.myFriendsCount', { count: acceptedFriends.length })}</h3>
         {acceptedFriends.length === 0 ? (
-          <p className="text-muted">Încă nu ai adăugat niciun prieten. Caută pe cineva mai sus!</p>
+          <p className="text-muted">{t('friends.noFriends')}</p>
         ) : (
           <div className="friends-grid">
             {acceptedFriends.map(friend => (
@@ -150,15 +153,15 @@ export default function FriendsPage({ onOpenMedia }) {
                     <button 
                       className="btn-remove-friend" 
                       onClick={() => setFriendToRemove(friend.username)} 
-                      title="Elimină prieten"
+                      title={t('friends.removeFriendTitle')}
                     >
                       <img src={asset("delete.svg")} alt="remove" className="btn-icon" />
                     </button>
                   </div>
                   <div className="friend-stats-mini">
-                    <span><img src={asset("Film.svg")} alt="Watchlist" className="friend-stat-icon-2" /> {friend.watchlist_count || 0} Filme</span>
-                    <span><img src={asset("Star.svg")} alt="Rating" className="friend-stat-icon" /> {friend.ratings_count || 0} Note</span>
-                    <span><img src={asset("Comment.svg")} alt="Comments" className="friend-stat-icon-2" /> {friend.comments_count || 0} Comentarii</span>
+                    <span><img src={asset("Film.svg")} alt="Watchlist" className="friend-stat-icon-2" /> {t('friends.moviesCount', { count: friend.watchlist_count || 0 })}</span>
+                    <span><img src={asset("Star.svg")} alt="Rating" className="friend-stat-icon" /> {t('friends.ratingsCount', { count: friend.ratings_count || 0 })}</span>
+                    <span><img src={asset("Comment.svg")} alt="Comments" className="friend-stat-icon-2" /> {t('friends.commentsCount', { count: friend.comments_count || 0 })}</span>
                   </div>
                 </div>
 
@@ -166,7 +169,7 @@ export default function FriendsPage({ onOpenMedia }) {
                   className={`btn-expand-watchlist ${expandedFriend === friend.username ? 'active' : ''}`}
                   onClick={() => toggleDropdown(friend.username)}
                 >
-                  {expandedFriend === friend.username ? "Ascunde Watchlist" : "Vezi Filmele din Watchlist"}
+                  {expandedFriend === friend.username ? t('friends.hideWatchlist') : t('friends.viewWatchlist')}
                 </button>
                 {expandedFriend === friend.username && (
                   <div className="friend-watchlist-dropdown">
@@ -182,7 +185,7 @@ export default function FriendsPage({ onOpenMedia }) {
                       ))
                     ) : (
                       <p style={{ padding: "15px", color: "var(--text-muted)", fontSize: "14px" }}>
-                        Acest utilizator nu are încă niciun film în watchlist.
+                        {t('friends.emptyWatchlist')}
                       </p>
                     )}
                   </div>
@@ -195,18 +198,17 @@ export default function FriendsPage({ onOpenMedia }) {
         {friendToRemove && (
         <div className="modal-overlay" onClick={() => setFriendToRemove(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Ești sigur?</h3>
+            <h3>{t('friends.modalConfirmTitle')}</h3>
             <p style={{ marginBottom: "30px", color: "var(--text-muted)", fontSize: "16px" }}>
-              Vrei să ștergi utilizatorul <strong>@{friendToRemove}</strong> din lista ta de prieteni? 
-              Nu îi vom trimite nicio notificare în acest sens.
+              {t('friends.modalConfirmText', { username: friendToRemove })}
             </p>
             
             <div className="modal-buttons">
               <button type="button" className="btn-secondary" onClick={() => setFriendToRemove(null)}>
-                Anulează
+                {t('friends.cancel')}
               </button>
               <button type="button" className="btn-danger" onClick={executeRemoveFriend}>
-                Da, elimină
+                {t('friends.confirmRemove')}
               </button>
             </div>
           </div>

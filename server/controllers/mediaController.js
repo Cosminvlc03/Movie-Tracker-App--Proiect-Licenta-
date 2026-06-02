@@ -28,9 +28,10 @@ export const getWatchlist = async (username) => {
   return watchlistResult.rows;
 };
 
-const getMovieDetails = async (mediaId, mediaType = "movie") => {
+const getMovieDetails = async (mediaId, mediaType = "movie", language = "en-US") => {
   try {
-    const detailsUrl = `${baseURL}/${mediaType}/${mediaId}?api_key=${apiKey}&append_to_response=credits,videos`;
+    const langCode = language.substring(0, 2);
+    const detailsUrl = `${baseURL}/${mediaType}/${mediaId}?api_key=${apiKey}&language=${language}&append_to_response=credits,videos&include_video_language=${langCode},en`;
     const response = await axios.get(detailsUrl);
     const data = response.data;
     const mainActors = (data.credits?.cast || [])
@@ -60,24 +61,26 @@ const getMovieDetails = async (mediaId, mediaType = "movie") => {
   }
 };
 
-const searchAndGetDetails = async (query, noOfResults) => {
+export const searchAndGetDetails = async (query, noOfResults, language = "en-US") => {
   try {
-    const searchUrl = `${baseURL}/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}`;
+    const searchUrl = `${baseURL}/search/multi?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=${language}`;
     const response = await axios.get(searchUrl);
     const searchResults = response.data.results;
-
+    console.log("Rezultate brute TMDB:", searchResults.length);
     if (!searchResults || searchResults.length === 0) return [];
 
     const mediaToFetch = searchResults
       .filter((result) => result.media_type === "movie")
       .sort((a, b) => b.popularity - a.popularity)
       .slice(0, noOfResults);
-
-    const selectedMedia = mediaToFetch.map((result) => getMovieDetails(result.id, result.media_type));
+    console.log("Filme după filtrare:", mediaToFetch.length);
+    const selectedMedia = mediaToFetch.map((result) => getMovieDetails(result.id, result.media_type, language));
     const detailedResults = await Promise.all(selectedMedia);
+    console.log("Rezultate detaliate finalizate:", detailedResults.length);
     return detailedResults.filter(Boolean);
   } catch (err) {
     console.error(err);
+    console.error("Eroare în searchAndGetDetails:", err);
     return [];
   }
 };
@@ -93,8 +96,10 @@ export const fetchWatchlist = async (req, res) => {
 };
 
 export const searchMedia = async (req, res) => {
+  console.log("Date primite:", req.body);
   try {
-    const details = await searchAndGetDetails(req.body.search, 10);
+    const language = req.body.language || 'en-US';
+    const details = await searchAndGetDetails(req.body.search, 10, language);
     const media = details.map((item) => ({
       title: item.title,
       image: item.photo && item.photo.trim() !== "" ? item.photo.trim() : null,
@@ -108,7 +113,8 @@ export const searchMedia = async (req, res) => {
 
 export const getMediaDetails = async (req, res) => {
   try {
-    const details = await getMovieDetails(req.params.mediaId, "movie");
+    const language = req.query.language || 'en-US';
+    const details = await getMovieDetails(req.params.mediaId, "movie", language);
     if (!details) return res.status(404).json({ message: "Media not found" });
 
     res.json({
@@ -157,7 +163,9 @@ export const getFavouriteDetails = async (req, res) => {
     if (!result) return res.status(404).json({ message: "Media not found" });
     let trailerKey = null;
     try {
-      const videoUrl = `${baseURL}/movie/${result.tmdb_id}/videos?api_key=${apiKey}`;
+      const language = req.query.language || 'en-US';
+      const langCode = language.substring(0, 2);
+      const videoUrl = `${baseURL}/movie/${result.tmdb_id}/videos?api_key=${apiKey}&language=${language}&include_video_language=${langCode},en`;
       const videoResponse = await axios.get(videoUrl);
       const videos = videoResponse.data.results || [];
       const trailer = videos.find((v) => v.site === "YouTube" && v.type === "Trailer");

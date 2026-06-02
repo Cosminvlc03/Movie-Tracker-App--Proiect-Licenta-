@@ -10,11 +10,10 @@
   - leave comments on movies and see other movies;
   - watch trailers;
   - search for friends, add them and see their watchlists;
-  - login as admin, see users/movies stats and graphs, as well as exporting the data and managing users
-- As such, the app is meant centralize multiple features, and add features absent from mentioned platforms.
-- Main future features will include:
   - AI chatbot to ask about movies;
   - Recommendation system;
+  - login as admin, see users/movies stats and graphs, as well as exporting the data and managing users
+- As such, the app is meant centralize multiple features, and add features absent from mentioned platforms.
 
 2. Technical Section:
 The stack I used is as follows:

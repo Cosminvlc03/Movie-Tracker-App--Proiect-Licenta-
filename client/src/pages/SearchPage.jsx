@@ -1,10 +1,13 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { asset } from "../utils/helpers";
 
 export default function SearchPage({ media, onOpenMedia }) {
+  const { t } = useTranslation();
+
   return (
     <div className="page-wrapper">
-      <h2 className="welcome-text">Rezultatele căutării tale</h2>
+      <h2 className="welcome-text">{t('search.resultsTitle')}</h2>
 
       {media && media.length > 0 ? (
         <div className="movies-grid">
@@ -26,7 +29,7 @@ export default function SearchPage({ media, onOpenMedia }) {
           ))}
         </div>
       ) : (
-        <p className="no-movies">Nu am găsit niciun rezultat. Încearcă o altă căutare în bara de sus!</p>
+        <p className="no-movies">{t('search.noResults')}</p>
       )}
     </div>
   );

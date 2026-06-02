@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { asset } from "../utils/helpers";
 import Toast from "../components/Toast";
 
 export default function SignupPage({ onSignup, onBack }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [toastError, setToastError] = useState("");
 
@@ -12,13 +14,13 @@ export default function SignupPage({ onSignup, onBack }) {
     
     const hasEmptyFields = Object.values(form).some((value) => value.trim() === "");
     if (hasEmptyFields) {
-      setToastError("All fields are required");
+      setToastError(t('auth.errorFieldsRequired'));
       return;
     }
     try {
       await onSignup(form);
-    } catch (err){
-      setToastError(err.message || "Signup failed");
+    } catch (err) {
+      setToastError(err.message || t('auth.errorSignupFailed'));
     }
   };
 
@@ -35,10 +37,10 @@ export default function SignupPage({ onSignup, onBack }) {
         <h1 className="mainTitle">MyMovieTracker</h1>
         <div className="mainSection">
           <form id="saveProfile" onSubmit={submit}>
-            <input type="text" className="input" name="username" placeholder="Username" required value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} />
-            <input type="email" className="input" name="email" placeholder="Email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-            <input type="password" className="input" name="password" placeholder="Password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-            <input type="submit" className="signUp" id="signupButton" value="Sign up" />
+            <input type="text" className="input" name="username" placeholder={t('auth.username')} required value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} />
+            <input type="email" className="input" name="email" placeholder={t('auth.email')} required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+            <input type="password" className="input" name="password" placeholder={t('auth.password')} required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+            <input type="submit" className="signUp" id="signupButton" value={t('auth.signup')} />
           </form>
         </div>
       </div>

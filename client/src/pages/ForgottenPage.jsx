@@ -1,26 +1,26 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { asset } from "../utils/helpers";
 import { api } from "../api/apiClient";
 import Toast from "../components/Toast";
 
 export default function ForgottenPage({ onBack }) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [toast, setToast] = useState({ message: "", type: "" });
 
   const submit = async (event) => {
     event.preventDefault();
-    setToast({ message: "", type: "" }); // Resetăm toast-ul anterior
-    
+    setToast({ message: "", type: "" });
     try {
       const data = await api("/recover-password", { 
         method: "POST", 
         body: JSON.stringify({ email }) 
       });
-      // Mesajul generic de securitate trimis de backend
       setToast({ message: data.message, type: "success" });
-      setEmail(""); // Golim input-ul după trimitere
+      setEmail("");
     } catch (err) {
-      setToast({ message: err.message || "A apărut o eroare.", type: "error" });
+      setToast({ message: err.message || t('forgotten.defaultError'), type: "error" });
     }
   };
 
@@ -38,14 +38,11 @@ export default function ForgottenPage({ onBack }) {
         <h1 className="mainTitle">MyMovieTracker</h1>
         <div className="mainSection">
           <form id="forgottenProfile" onSubmit={submit}>
-            {/* Un text explicativ elegant */}
             <p style={{ color: "#C3C5D7", fontFamily: "Alkatra", fontSize: "20px", textAlign: "center", padding: "0 20px" }}>
-              Introdu adresa de email pentru a primi link-ul de resetare a parolei.
+              {t('forgotten.explanation')}
             </p>
-            
-            <input type="email" className="input" name="email" placeholder="Email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-            
-            <input type="submit" className="recoverPassword" id="recoverPasswordButton" value="Trimite Link" />
+            <input type="email" className="input" name="email" placeholder={t('forgotten.emailPlaceholder')} required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <input type="submit" className="recoverPassword" id="recoverPasswordButton" value={t('forgotten.submitBtn')} />
           </form>
         </div>
       </div>

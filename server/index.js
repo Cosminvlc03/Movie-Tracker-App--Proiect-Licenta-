@@ -10,6 +10,7 @@ import authRoutes from "./routes/authRoutes.js";
 import mediaRoutes from "./routes/mediaRoutes.js";
 import friendRoutes from "./routes/friendRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,6 +37,7 @@ app.use("/api", authRoutes);
 app.use("/api", mediaRoutes);
 app.use("/api", friendRoutes);
 app.use("/api", adminRoutes);
+app.use("/api", aiRoutes);
 
 const clientDistPath = path.join(__dirname, "../client/dist");
 app.use(express.static(clientDistPath));

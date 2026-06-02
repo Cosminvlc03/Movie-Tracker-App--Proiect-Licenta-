@@ -1,7 +1,10 @@
 import React, { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { getPosterSrc, asset } from "../utils/helpers";
+import AIRecommendations from "../components/AIRecommendations";
 
-export default function HomePage({ username, watchlist, onOpenMedia }) {
+export default function HomePage({ username, watchlist, onOpenMedia, onOpenNewMedia }) {
+  const { t } = useTranslation();
   const [sortOption, setSortOption] = useState("default");
   const [isFilterBarOpen, setIsFilterBarOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState("");
@@ -48,7 +51,7 @@ export default function HomePage({ username, watchlist, onOpenMedia }) {
     <div className="page-wrapper">
       <div className="home-header">
         <div className="welcome-container">
-          <h2 className="welcome-text">Ce filme urmărim astăzi, {username}?</h2>
+          <h2 className="welcome-text">{t('home.welcome', { name: username })}</h2>
           {watchlist?.length > 0 && (
             <button 
               className={`toggle-filter-btn ${isFilterBarOpen ? "open" : ""}`}
@@ -64,20 +67,20 @@ export default function HomePage({ username, watchlist, onOpenMedia }) {
         
         {watchlist?.length > 0 && (
           <div className="sort-container">
-            <label htmlFor="sortWatchlist">Sortează: </label>
+            <label htmlFor="sortWatchlist">{t('home.sortLabel')}</label>
             <select 
               id="sortWatchlist"
               className="sort-select" 
               value={sortOption} 
               onChange={(e) => setSortOption(e.target.value)}
             >
-              <option value="default">Adăugate recent</option>
-              <option value="title_asc">Alfabetic (A-Z)</option>
-              <option value="title_desc">Alfabetic (Z-A)</option>
-              <option value="year_desc">Anul lansării (Nou → Vechi)</option>
-              <option value="year_asc">Anul lansării (Vechi → Nou)</option>
-              <option value="rating_desc">Cel mai bine cotate</option>
-              <option value="reviews_desc">Cele mai comentate</option>
+              <option value="default">{t('home.sortRecent')}</option>
+              <option value="title_asc">{t('home.sortAlphaAsc')}</option>
+              <option value="title_desc">{t('home.sortAlphaDesc')}</option>
+              <option value="year_desc">{t('home.sortYearNew')}</option>
+              <option value="year_asc">{t('home.sortYearOld')}</option>
+              <option value="rating_desc">{t('home.sortRating')}</option>
+              <option value="reviews_desc">{t('home.sortReviews')}</option>
             </select>
           </div>
         )}
@@ -92,7 +95,7 @@ export default function HomePage({ username, watchlist, onOpenMedia }) {
             </svg>
             <input 
               type="text" 
-              placeholder="Caută în watchlist-ul tău..." 
+              placeholder={t('home.searchLocalPlaceholder')} 
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               className="local-search-input"
@@ -104,7 +107,7 @@ export default function HomePage({ username, watchlist, onOpenMedia }) {
               className={`genre-chip ${selectedGenre === "All" ? "active" : ""}`}
               onClick={() => setSelectedGenre("All")}
             >
-              Toate
+              {t('home.allGenres')}
             </button>
             {uniqueGenres.map((genre, idx) => (
               <button 
@@ -136,11 +139,14 @@ export default function HomePage({ username, watchlist, onOpenMedia }) {
         ) : (
           <p className="no-movies">
             {watchlist?.length > 0 
-              ? "Niciun film nu corespunde criteriilor tale de filtrare." 
-              : "Nu ai niciun film în watchlist. Caută unul sus!"}
+              ? t('home.noMoviesFilter') 
+              : t('home.noMoviesEmpty')}
           </p>
         )}
       </div>
+      
+      <AIRecommendations onOpenMedia={onOpenNewMedia} />
+
     </div>
   );
 }

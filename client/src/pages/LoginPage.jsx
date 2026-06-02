@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Toast from "../components/Toast";
 
 export default function LoginPage({ toast, onCloseToast, onLogin, onForgotten, onSignup }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState({ username: "", password: "" });
 
   const submit = (event) => {
@@ -18,17 +20,17 @@ export default function LoginPage({ toast, onCloseToast, onLogin, onForgotten, o
         <h1 className="mainTitle"> MyMovieTracker</h1>
         <div className="mainSection">
           <form id="loginForm" onSubmit={submit}>
-            <input type="text" className="input" name="username" placeholder="Username" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} />
+            <input type="text" className="input" name="username" placeholder={t('auth.username')} value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} />
             <div className="removeSpace">
-              <input type="password" className="input" name="password" placeholder="Password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-              <input type="button" id="forgottenPasswordButton" value="Forgot Password?" onClick={onForgotten} />
+              <input type="password" className="input" name="password" placeholder={t('auth.password')} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+              <input type="button" id="forgottenPasswordButton" value={t('auth.forgotPassword')} onClick={onForgotten} />
             </div>
-            <input type="submit" id="loginButton" value="Log in" />
+            <input type="submit" id="loginButton" value={t('auth.login')} />
           </form>
           <div className="signSection">
-            <h3 className="newUser">New user?</h3>
+            <h3 className="newUser">{t('auth.newUser')}</h3>
             <form id="signupForm" onSubmit={(e) => { e.preventDefault(); onSignup(); }}>
-              <input type="submit" className="signUp" id="signupButton" value="Sign up" />
+              <input type="submit" className="signUp" id="signupButton" value={t('auth.signup')} />
             </form>
           </div>
         </div>
