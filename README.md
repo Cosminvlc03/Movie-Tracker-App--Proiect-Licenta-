@@ -20,9 +20,8 @@ The stack I used is as follows:
 - For FE -> React(+HTML5 & CSS3);
 - For BE -> Node.js + Express.js;
 - For DB -> PostgreSQL;
-In the "design" folder you will be able to find the base design I made for the website + the link to the Figma Schema.
 The TMDB API is used to call for the content the user wants, as such an API key is needed.
-Under the public/misc you can also find the commands needed to create the DB in PostgreSQL. An account is needed.
+Under the "db_script" folder you can also find the commands needed to create the DB in PostgreSQL. An account is needed.
 The necessary keys for the .env files are:
     - API_KEY
     - DB_PASS
@@ -31,6 +30,7 @@ The necessary keys for the .env files are:
     - DB_NAME
     - DB_PORT
     - SESSION_SECRET
+    - GEMINI_API_KEY
  
 3. Installation:
 - Clone the repository (using "git clone [repo link]" or from GitHub itself);
