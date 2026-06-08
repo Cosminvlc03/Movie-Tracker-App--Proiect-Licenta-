@@ -95,6 +95,7 @@ const resources = {
         confirmDelete: "Confirmă Ștergerea"
       },
       admin: {
+        reviewsCountLabel: "recenzii",
         errorStats: "Nu am putut încărca statisticile. Asigură-te că ești administrator.",
         loading: "Se încarcă panoul de control...",
         errorUsers: "Eroare la încărcarea utilizatorilor.",
@@ -329,6 +330,7 @@ const resources = {
         confirmDelete: "Confirm Delete"
       },
       admin: {
+        reviewsCountLabel: "reviews",
         errorStats: "Could not load statistics. Ensure you are an administrator.",
         loading: "Loading dashboard...",
         errorUsers: "Error loading users.",

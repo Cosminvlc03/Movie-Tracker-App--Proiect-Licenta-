@@ -17,11 +17,14 @@ export const getDashboardStats = async (req, res) => {
     const topPopularResult = await db.query(topPopularQuery);
 
     const topRatedQuery = `
-      SELECT m.title, ROUND(AVG(r.rating), 1) as rating
+      SELECT m.title, 
+            ROUND(AVG(r.rating), 1) as rating, 
+            COUNT(r.id) as review_count
       FROM media m
       JOIN ratings r ON m.id = r.movie_id
       GROUP BY m.id, m.title
-      ORDER BY rating DESC
+      HAVING COUNT(r.id) > 0 
+      ORDER BY rating DESC, review_count DESC
       LIMIT 5
     `;
     const topRatedResult = await db.query(topRatedQuery);
@@ -58,8 +61,9 @@ export const getDashboardStats = async (req, res) => {
       })),
       topMoviesRated: topRatedResult.rows.map(row => ({ 
         name: row.title, 
-        rating: parseFloat(row.rating) 
-      })),
+        rating: parseFloat(row.rating),
+        count: parseInt(row.review_count, 10) // Adăugăm numărul de review-uri aici
+})),
       usersTimeline: usersTimelineResult.rows.map(row => ({
         date: row.date,
         count: parseInt(row.count, 10)

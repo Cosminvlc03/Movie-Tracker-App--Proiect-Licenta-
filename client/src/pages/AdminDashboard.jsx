@@ -183,7 +183,15 @@ export default function AdminDashboard({ onLogout }) {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="name" stroke={axisColor} tick={{fontSize: 11}} interval={0} angle={-35} textAnchor="end" height={80} />
                 <YAxis stroke={axisColor} domain={[0, 10]} />
-                <Tooltip contentStyle={tooltipStyle} />
+                <Tooltip 
+                  contentStyle={tooltipStyle} 
+                  formatter={(value, name, props) => {
+                    if (name === t('admin.chartRatedLabel')) {
+                      return [`${value} (${props.payload.count} ${t('admin.reviewsCountLabel') || 'recenzii'})`, name];
+                    }
+                    return [value, name];
+                  }}
+                />
                 <Bar dataKey="rating" name={t('admin.chartRatedLabel')} fill="#ffb400" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
