@@ -3,8 +3,8 @@
 -- ==========================================
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    username VARCHAR(30) NOT NULL,
-    mail VARCHAR(50) NOT NULL,
+    username VARCHAR(30) NOT NULL UNIQUE,
+    mail VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(100) NOT NULL,
     role VARCHAR(20) DEFAULT 'user',
     reset_token VARCHAR(255),

@@ -62,7 +62,7 @@ export const getDashboardStats = async (req, res) => {
       topMoviesRated: topRatedResult.rows.map(row => ({ 
         name: row.title, 
         rating: parseFloat(row.rating),
-        count: parseInt(row.review_count, 10) // Adăugăm numărul de review-uri aici
+        count: parseInt(row.review_count, 10)
 })),
       usersTimeline: usersTimelineResult.rows.map(row => ({
         date: row.date,
